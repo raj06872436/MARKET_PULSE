@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 4 of the implementation plan are built:
+Weeks 2 to 5 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -16,10 +16,13 @@ Weeks 2 to 4 of the implementation plan are built:
 - Sync jobs with status, incremental windows, an optional scheduler, and deduplication so repeated syncs never double-count
 - Source health that tells "failed" and "incomplete" apart from "no mentions"
 - Sentiment on every stored post, with confidence, quality flags and model versioning ([model card](docs/model-card-sentiment.md), [evaluation](docs/evaluation/sentiment.md))
-- React + TypeScript + Vite + Tailwind UI with working Watchlists and Sources pages
+- Aspect tagging (price, battery, camera, delivery and more) and frequent phrases per entity
+- Daily metrics per entity that keep "not collected" days apart from zero-mention days
+- An explainable trend score with confidence, components and example posts ([how it works](docs/architecture.md#trend-score))
+- React + TypeScript + Vite + Tailwind UI with an Overview page (daily mentions chart and trend cards), Watchlists and Sources
 - Docker Compose for local development and GitHub Actions CI
 
-Authentication and all analytics come in later weeks. See [docs/architecture.md](docs/architecture.md).
+Forecasting, insights, alerts and authentication come in later weeks. See [docs/architecture.md](docs/architecture.md).
 
 ## Getting data in
 
@@ -28,6 +31,23 @@ Authentication and all analytics come in later weeks. See [docs/architecture.md]
 3. Press **Sync now**, or set `SCHEDULER_ENABLED=true` to sync every `SYNC_INTERVAL_MINUTES`.
 
 Each run records how many records were fetched, new, already stored, matched to a watchlist and rejected, plus what it couldn't cover.
+
+## Demo data
+
+To see every chart without collecting anything, load the synthetic demo. It creates a "Demo workspace" with four budget phones and 120 days of fake posts (one product grows with a one-day spike, a competitor gets a complaint surge, one is flat, one declines, and three days are left uncollected on purpose):
+
+```bash
+cd backend
+python -m app.demo.seed --end 2026-10-17
+```
+
+Everything it writes is fictional and links point at example.com. Add `--csv-out ../data_samples` to also save the two CSVs.
+
+To check that the dashboard numbers match the raw records for a date range:
+
+```bash
+python -m app.analytics.reconcile --start 2026-09-01 --end 2026-10-17
+```
 
 ## Run with Docker
 
