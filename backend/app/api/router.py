@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import analysis, explore, forecasts, health, imports, jobs, metrics, sources, watchlists, workspaces
+from app.api.routes import analysis, explore, forecasts, health, insights, imports, jobs, metrics, sources, watchlists, workspaces
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
@@ -13,3 +13,4 @@ api_router.include_router(analysis.router)
 api_router.include_router(metrics.router)
 api_router.include_router(forecasts.router)
 api_router.include_router(explore.router)
+api_router.include_router(insights.router)

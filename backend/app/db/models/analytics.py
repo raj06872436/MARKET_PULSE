@@ -102,10 +102,17 @@ class InsightCard(UUIDPk, Base):
     __tablename__ = "insight_cards"
 
     workspace_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    watchlist_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("watchlists.id", ondelete="CASCADE"), index=True)
+    entity_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("tracked_entities.id", ondelete="CASCADE"))
     period_start: Mapped[date] = mapped_column(Date)
     period_end: Mapped[date] = mapped_column(Date)
+    # The observation: a measurable change with its dates and comparison period.
     claim: Mapped[str] = mapped_column(Text)
+    # Cited facts (id, label, value) and record IDs, copied at generation time so the card stays checkable.
     evidence_json: Mapped[dict] = mapped_column(JSONType)
+    interpretation: Mapped[str | None] = mapped_column(Text)  # always shown as a possible explanation
     caveat: Mapped[str | None] = mapped_column(Text)
+    suggested_action: Mapped[str | None] = mapped_column(Text)
+    generator: Mapped[str] = mapped_column(String(16), server_default="template")  # template | llm
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     model_version: Mapped[str] = mapped_column(String(50))
