@@ -6,15 +6,27 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-This is the Week 2 foundation from the implementation plan:
+Weeks 2 and 3 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
-- Workspace, watchlist and tracked-entity endpoints (create, edit, pause, delete, duplicate-safe terms)
-- React + TypeScript + Vite + Tailwind shell with a working Watchlists page and placeholders for later screens
+- Workspaces and watchlists: create, edit, pause and delete, with duplicate-safe terms and variants
+- CSV import with row-level validation ([format](docs/csv-format.md)) and a synthetic sample in `data_samples/`
+- Bluesky connector with paging, retries and backoff, behind a recorded terms review
+- Sync jobs with status, incremental windows, an optional scheduler, and deduplication so repeated syncs never double-count
+- Source health that tells "failed" and "incomplete" apart from "no mentions"
+- React + TypeScript + Vite + Tailwind UI with working Watchlists and Sources pages
 - Docker Compose for local development and GitHub Actions CI
 
-Authentication, connectors, the CSV importer and all analytics come in later weeks. See [docs/architecture.md](docs/architecture.md).
+Authentication and all analytics come in later weeks. See [docs/architecture.md](docs/architecture.md).
+
+## Getting data in
+
+1. Create a watchlist and add the brands or products to track on the **Watchlists** page.
+2. On **Sources**, either upload a CSV (try `data_samples/sample_mentions.csv`) or connect Bluesky. Connecting asks you to confirm you've checked the platform's current terms; the date and your notes are saved.
+3. Press **Sync now**, or set `SCHEDULER_ENABLED=true` to sync every `SYNC_INTERVAL_MINUTES`.
+
+Each run records how many records were fetched, new, already stored, matched to a watchlist and rejected, plus what it couldn't cover.
 
 ## Run with Docker
 
@@ -47,7 +59,7 @@ npm run dev
 ## Tests
 
 ```bash
-cd backend && pytest        # API tests, run against in-memory SQLite
+cd backend && pytest        # API, import, connector and sync tests on in-memory SQLite
 alembic check               # fails if the models and migrations disagree
 cd ../frontend && npm run build   # type-check and build
 ```

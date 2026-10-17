@@ -14,19 +14,35 @@ class SourceConnection(UUIDPk, CreatedAt, Base):
     # A reference to a secret store entry, never the secret itself.
     credential_ref: Mapped[str | None] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(32), default="disabled")
+    # A connector may only sync once someone has recorded that its terms were reviewed.
     policy_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    policy_notes: Mapped[str | None] = mapped_column(Text)
 
 
 class IngestionRun(UUIDPk, Base):
+    """One sync or import. Status is one of: queued, running, succeeded, partial, failed.
+
+    "partial" means data arrived but coverage is incomplete (rows rejected, page cap hit),
+    so a dashboard can tell "no matching posts" apart from "we didn't look everywhere".
+    """
+
     __tablename__ = "ingestion_runs"
 
     source: Mapped[str] = mapped_column(String(64), index=True)
+    trigger: Mapped[str] = mapped_column(String(16), default="manual", server_default="manual")
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(32), default="queued")
+    window_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_count: Mapped[int | None] = mapped_column(Integer)
+    inserted_count: Mapped[int | None] = mapped_column(Integer)
+    duplicate_count: Mapped[int | None] = mapped_column(Integer)
+    rejected_count: Mapped[int | None] = mapped_column(Integer)
     matched_count: Mapped[int | None] = mapped_column(Integer)
     error_code: Mapped[str | None] = mapped_column(String(64))
+    # Sanitized summary only: never tokens or raw record content.
+    error_detail: Mapped[str | None] = mapped_column(Text)
+    coverage_json: Mapped[dict | None] = mapped_column(JSONType)
 
 
 class SocialRecord(UUIDPk, Base):
@@ -42,6 +58,9 @@ class SocialRecord(UUIDPk, Base):
     text_reference: Mapped[str | None] = mapped_column(Text)
     permitted_url: Mapped[str | None] = mapped_column(String(2048))
     language: Mapped[str | None] = mapped_column(String(16))
+    # sha256 of the normalized text, for spotting copy-paste bursts. Dedupe itself is by source ID.
+    content_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    connector_version: Mapped[str | None] = mapped_column(String(32))
     # Missing engagement stays null; never coerce it to zero.
     engagement_json: Mapped[dict | None] = mapped_column(JSONType)
 
