@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.analytics.pipeline import AnalysisSummary, run_analysis
 from app.analytics.sentiment import score_pending
 from app.core.config import Settings, get_settings
 from app.db.models import ModelVersion
@@ -18,6 +19,12 @@ def score_sentiment(db: Session = Depends(get_db), settings: Settings = Depends(
     model = get_model(settings.sentiment_model)
     scored = score_pending(db, model)
     return ScoringResult(model=ModelVersionRead.model_validate(ensure_registered(db, model)), scored=scored)
+
+
+@router.post("/analysis/run")
+def run_full_analysis(db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> AnalysisSummary:
+    """Re-match, score, tag aspects and rebuild daily metrics and trend signals from stored records."""
+    return run_analysis(db, get_model(settings.sentiment_model))
 
 
 @router.get("/models", response_model=list[ModelVersionRead])
