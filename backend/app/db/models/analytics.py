@@ -75,9 +75,14 @@ class ForecastRun(UUIDPk, CreatedAt, Base):
 
     entity_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tracked_entities.id", ondelete="CASCADE"), index=True)
     model_version: Mapped[str] = mapped_column(String(50))
+    # ready | insufficient_data | failed. Only "ready" runs have points.
+    status: Mapped[str] = mapped_column(String(24), server_default="ready")
+    # The method whose points were stored, e.g. "ets" or "seasonal_naive".
+    method: Mapped[str | None] = mapped_column(String(50))
     horizon_days: Mapped[int] = mapped_column(Integer)
-    training_start: Mapped[date] = mapped_column(Date)
-    training_end: Mapped[date] = mapped_column(Date)
+    training_start: Mapped[date | None] = mapped_column(Date)
+    training_end: Mapped[date | None] = mapped_column(Date)
+    # Data checks, back-test metrics for every method, interval level and coverage.
     metrics_json: Mapped[dict | None] = mapped_column(JSONType)
 
 

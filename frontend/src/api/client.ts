@@ -1,6 +1,7 @@
 import type {
   CsvImportResult,
   Evidence,
+  Forecast,
   SeriesResponse,
   TrendCard,
   IngestionRun,
@@ -75,6 +76,9 @@ export const api = {
     sources?.forEach((s) => params.append("source", s));
     return request<SeriesResponse>(`/metrics/series?${params}`);
   },
+  forecasts: (watchlistId: string) => request<Forecast[]>(`/forecasts?watchlist_id=${watchlistId}`),
+  createForecast: (entityId: string, horizonDays: number) =>
+    request<Forecast>("/forecasts", { method: "POST", body: JSON.stringify({ entity_id: entityId, horizon_days: horizonDays }) }),
   evidence: (entityId: string, start: string, end: string) =>
     request<Evidence>(`/entities/${entityId}/evidence?start=${start}&end=${end}`),
   importCsv: (file: File, dataset: string, timezone: string) => {
