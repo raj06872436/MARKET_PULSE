@@ -1,4 +1,12 @@
-import type { TrackedEntity, TrackedEntityCreate, Watchlist, Workspace } from "../types/api";
+import type {
+  CsvImportResult,
+  IngestionRun,
+  Source,
+  TrackedEntity,
+  TrackedEntityCreate,
+  Watchlist,
+  Workspace,
+} from "../types/api";
 
 export class ApiError extends Error {
   constructor(
@@ -10,13 +18,19 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isForm = init?.body instanceof FormData;
   const response = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: isForm ? undefined : { "Content-Type": "application/json" },
     ...init,
   });
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    const detail = typeof body?.detail === "string" ? body.detail : response.statusText;
+    const detail =
+      typeof body?.detail === "string"
+        ? body.detail
+        : Array.isArray(body?.detail)
+          ? body.detail.map((d: { msg?: string }) => d.msg).join("; ")
+          : response.statusText;
     throw new ApiError(response.status, detail);
   }
   return response.status === 204 ? (undefined as T) : response.json();
@@ -45,4 +59,18 @@ export const api = {
     }),
   deleteEntity: (watchlistId: string, entityId: string) =>
     request<void>(`/watchlists/${watchlistId}/entities/${entityId}`, { method: "DELETE" }),
+
+  listSources: () => request<Source[]>("/sources"),
+  updateSource: (source: string, body: { enabled?: boolean; policy_reviewed?: boolean; policy_notes?: string }) =>
+    request<Source>(`/sources/${source}`, { method: "PUT", body: JSON.stringify(body) }),
+  syncSource: (source: string) => request<IngestionRun>(`/sources/${source}/sync`, { method: "POST" }),
+  getJob: (id: string) => request<IngestionRun>(`/jobs/${id}`),
+  listJobs: (limit = 20) => request<IngestionRun[]>(`/jobs?limit=${limit}`),
+  importCsv: (file: File, dataset: string, timezone: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("dataset", dataset);
+    form.append("timezone", timezone);
+    return request<CsvImportResult>("/imports/csv", { method: "POST", body: form });
+  },
 };

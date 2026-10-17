@@ -4,6 +4,33 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 
+class ConnectorError(Exception):
+    """A source-side failure. `code` is stored on the run so the UI can say what went wrong.
+
+    Codes: not_configured, auth_failed, rate_limited, quota_exhausted, source_unavailable,
+    timeout, schema_invalid.
+    """
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+
+
+@dataclass
+class FetchCoverage:
+    """What a fetch actually covered, so incomplete coverage is never mistaken for low volume."""
+
+    queries: list[str] = field(default_factory=list)
+    skipped_queries: list[str] = field(default_factory=list)
+    truncated_queries: list[str] = field(default_factory=list)
+    pages_fetched: int = 0
+    schema_errors: int = 0
+
+    @property
+    def complete(self) -> bool:
+        return not (self.skipped_queries or self.truncated_queries or self.schema_errors)
+
+
 @dataclass(frozen=True)
 class NormalizedRecord:
     """The common shape every connector emits, before matching and storage."""
@@ -36,10 +63,15 @@ class SourceConnector(ABC):
     """
 
     name: str
+    version: str
 
     @abstractmethod
-    def fetch(self, terms: list[str], since: datetime | None) -> Iterator[NormalizedRecord]:
-        """Yield records published after `since` that match any of `terms`."""
+    def fetch(self, terms: list[str], since: datetime | None, coverage: FetchCoverage) -> Iterator[NormalizedRecord]:
+        """Yield records published after `since` that match any of `terms`.
+
+        Record what was and wasn't searched in `coverage`. Raise ConnectorError on source failures;
+        records already yielded are kept.
+        """
 
     @abstractmethod
     def health(self) -> ConnectorHealth:

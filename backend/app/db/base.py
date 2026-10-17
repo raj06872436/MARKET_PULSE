@@ -5,8 +5,9 @@ from sqlalchemy import JSON, DateTime, MetaData, Uuid, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-# JSONB on Postgres, plain JSON elsewhere (SQLite in unit tests).
-JSONType = JSON().with_variant(JSONB(), "postgresql")
+# JSONB on Postgres, plain JSON elsewhere (SQLite in unit tests). Python None is stored as SQL NULL,
+# not JSON null, so "IS NULL" finds every missing value.
+JSONType = JSON(none_as_null=True).with_variant(JSONB(none_as_null=True), "postgresql")
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
