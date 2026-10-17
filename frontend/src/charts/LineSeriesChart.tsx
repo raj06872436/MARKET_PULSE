@@ -93,7 +93,21 @@ export function LineSeriesChart({ series, value, format = (v) => v.toLocaleStrin
               );
             }}
           />
-          {series.length > 1 && <Legend verticalAlign="top" align="left" iconType="plainline" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} />}
+          {series.length > 1 && (
+            <Legend verticalAlign="top" align="left" wrapperStyle={{ paddingBottom: 8 }}
+              content={() => (
+                // Listed in watchlist order, the same order as the tooltip and the colours.
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-700">
+                  {series.map((s) => (
+                    <span key={s.key} className="flex items-center gap-1.5">
+                      <svg width="14" height="4" aria-hidden><line x1="0" y1="2" x2="14" y2="2" stroke={s.color} strokeWidth="2" /></svg>
+                      {s.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            />
+          )}
           {series.map((s) => (
             <Line
               key={s.key}

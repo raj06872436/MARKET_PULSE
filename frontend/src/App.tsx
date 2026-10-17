@@ -3,8 +3,11 @@ import { Route, Routes } from "react-router-dom";
 
 import { api } from "./api/client";
 import { Layout } from "./components/Layout";
+import { ComparePage } from "./pages/ComparePage";
+import { ExplorePage } from "./pages/ExplorePage";
 import { ForecastsPage } from "./pages/ForecastsPage";
 import { OverviewPage } from "./pages/OverviewPage";
+import { SentimentPage } from "./pages/SentimentPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { SourcesPage } from "./pages/SourcesPage";
 import { WatchlistsPage } from "./pages/WatchlistsPage";
@@ -61,16 +64,9 @@ export default function App() {
           path="/watchlists"
           element={<WatchlistsPage workspaceId={workspace.id} watchlists={watchlists} onChange={refresh} />}
         />
-        <Route
-          path="/compare"
-          element={
-            <PlaceholderPage
-              title="Compare"
-              description="Side-by-side brand comparison over matching date ranges and source coverage."
-              note="Comparison needs daily aggregates, planned for weeks 5 and 6."
-            />
-          }
-        />
+        <Route path="/explore" element={<ExplorePage watchlists={watchlists} />} />
+        <Route path="/sentiment" element={<SentimentPage watchlists={watchlists} />} />
+        <Route path="/compare" element={<ComparePage watchlists={watchlists} />} />
         <Route path="/forecasts" element={<ForecastsPage watchlists={watchlists} />} />
         <Route
           path="/insights"

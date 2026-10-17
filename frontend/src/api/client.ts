@@ -1,7 +1,12 @@
 import type {
   CsvImportResult,
+  Comparison,
+  DataRange,
   Evidence,
   Forecast,
+  RecordPage,
+  RecordQuery,
+  SentimentBreakdown,
   SeriesResponse,
   TrendCard,
   IngestionRun,
@@ -75,6 +80,29 @@ export const api = {
     const params = new URLSearchParams({ entity_ids: entityIds.join(","), start, end });
     sources?.forEach((s) => params.append("source", s));
     return request<SeriesResponse>(`/metrics/series?${params}`);
+  },
+  dataRange: (watchlistId: string) => request<DataRange>(`/watchlists/${watchlistId}/data-range`),
+  records: (q: RecordQuery) => {
+    const params = new URLSearchParams({ watchlist_id: q.watchlistId, start: q.start, end: q.end });
+    if (q.entityIds?.length) params.set("entity_ids", q.entityIds.join(","));
+    q.sources?.forEach((s) => params.append("source", s));
+    if (q.q) params.set("q", q.q);
+    if (q.sentiment) params.set("sentiment", q.sentiment);
+    if (q.aspect) params.set("aspect", q.aspect);
+    if (q.sort) params.set("sort", q.sort);
+    params.set("limit", String(q.limit ?? 25));
+    params.set("offset", String(q.offset ?? 0));
+    return request<RecordPage>(`/records?${params}`);
+  },
+  sentiment: (entityId: string, start: string, end: string, sources?: string[]) => {
+    const params = new URLSearchParams({ start, end });
+    sources?.forEach((s) => params.append("source", s));
+    return request<SentimentBreakdown>(`/entities/${entityId}/sentiment?${params}`);
+  },
+  compare: (watchlistId: string, start: string, end: string, sources?: string[]) => {
+    const params = new URLSearchParams({ watchlist_id: watchlistId, start, end });
+    sources?.forEach((s) => params.append("source", s));
+    return request<Comparison>(`/compare?${params}`);
   },
   forecasts: (watchlistId: string) => request<Forecast[]>(`/forecasts?watchlist_id=${watchlistId}`),
   createForecast: (entityId: string, horizonDays: number) =>

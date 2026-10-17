@@ -205,3 +205,97 @@ export interface Forecast {
   history: { date: string; mentions: number | null }[];
   points: ForecastPoint[];
 }
+
+export interface DataRange {
+  first: string | null;
+  last: string | null;
+  sources: string[];
+}
+
+export type SentimentLabel = "positive" | "neutral" | "negative";
+
+export interface RecordRow {
+  id: string;
+  source: string;
+  published_at: string;
+  text: string | null;
+  url: string | null;
+  engagement: number | null;
+  sentiment: SentimentLabel | null;
+  confidence: number | null;
+  flags: string[];
+  aspects: { aspect: string; sentiment: SentimentLabel }[];
+  terms: string[];
+}
+
+export interface RecordPage {
+  total: number;
+  limit: number;
+  offset: number;
+  items: RecordRow[];
+}
+
+export interface RecordQuery {
+  watchlistId: string;
+  start: string;
+  end: string;
+  entityIds?: string[];
+  sources?: string[];
+  q?: string;
+  sentiment?: SentimentLabel | "unscored";
+  aspect?: string;
+  sort?: "newest" | "oldest" | "engagement";
+  limit?: number;
+  offset?: number;
+}
+
+export interface SentimentBreakdown {
+  entity_id: string;
+  term: string;
+  start: string;
+  end: string;
+  sources: string[];
+  mentions: number;
+  scored: number;
+  counts: Record<SentimentLabel, number>;
+  flagged: Record<string, number>;
+  aspects: AspectSummary[];
+  positive_phrases: [string, number][];
+  negative_phrases: [string, number][];
+  positive_examples: EvidenceRecord[];
+  negative_examples: EvidenceRecord[];
+}
+
+export interface Scorecard {
+  entity_id: string;
+  term: string;
+  entity_type: EntityType;
+  competitor_group: string | null;
+  mentions: number;
+  share_of_voice: number | null;
+  collected_days: number;
+  engagement_per_post: number | null;
+  engagement_records: number;
+  scored: number;
+  net_sentiment: number | null;
+  positive_share: number | null;
+  negative_share: number | null;
+  aspects: { aspect: string; mentions: number; negative_share: number }[];
+}
+
+export interface Comparison {
+  start: string;
+  end: string;
+  days: number;
+  sources: string[];
+  scorecards: Scorecard[];
+  aspect_gaps: {
+    aspect: string;
+    entity_id: string;
+    term: string;
+    mentions: number;
+    negative_share: number;
+    others_negative_share: number;
+    difference: number;
+  }[];
+}

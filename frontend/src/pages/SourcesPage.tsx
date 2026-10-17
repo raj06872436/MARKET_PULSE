@@ -5,6 +5,7 @@ import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { CoverageNote, formatTime, RunCounts } from "../components/RunSummary";
 import { StatusBadge } from "../components/StatusBadge";
+import { invalidateDataRanges } from "../hooks/useFilters";
 import type { CsvImportResult, IngestionRun, Source } from "../types/api";
 
 const POLL_MS = 1500;
@@ -15,6 +16,8 @@ export function SourcesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    // New runs may add days, so other pages should re-read the data range.
+    invalidateDataRanges();
     const [s, r] = await Promise.all([api.listSources(), api.listJobs(15)]);
     setSources(s);
     setRuns(r);
@@ -194,6 +197,7 @@ function CsvUpload({ onDone }: { onDone: () => void }) {
     setResult(null);
     try {
       setResult(await api.importCsv(file, dataset.trim(), timezone.trim() || "UTC"));
+      invalidateDataRanges();
       onDone();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");

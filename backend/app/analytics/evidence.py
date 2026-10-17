@@ -17,6 +17,11 @@ def day_bounds(start: date, end: date) -> tuple[datetime, datetime]:
     return datetime.combine(start, time.min, UTC), datetime.combine(end + timedelta(days=1), time.min, UTC)
 
 
+def text_key(text: str | None) -> str:
+    """Letters and digits only, lowercased: "#PocoX7 lags!" and "Poco X7 lags" compare equal."""
+    return "".join(ch for ch in (text or "").lower() if ch.isalnum())
+
+
 def gather_evidence(db: Session, entity: TrackedEntity, start: date, end: date, model: SentimentModel) -> Evidence:
     lo, hi = day_bounds(start, end)
     rows = db.execute(
@@ -41,15 +46,26 @@ def gather_evidence(db: Session, entity: TrackedEntity, start: date, end: date, 
                 aspects[item["aspect"]][item["sentiment"]] += 1
 
     # Examples: the most negative and most positive confident posts, then the latest, so evidence isn't cherry-picked one way.
+    # Near-identical posts are shown once so each example says something different.
+    seen: set[str] = set()
+
+    def take(candidates, limit: int) -> list:
+        out = []
+        for r, n in candidates:
+            key = text_key(r.text_reference)
+            if key not in seen and len(out) < limit:
+                seen.add(key)
+                out.append((r, n))
+        return out
+
     def pick(label: str) -> list:
-        return sorted(
+        return take(sorted(
             [(r, n) for r, n in rows if n and n.sentiment == label and not (n.flags_json or [])],
             key=lambda rn: -(rn[1].confidence or 0),
-        )[:2]
+        ), 2)
 
     chosen = pick("negative") + pick("positive")
-    seen = {r.id for r, _ in chosen}
-    chosen += [(r, n) for r, n in rows if r.id not in seen][: MAX_EXAMPLES - len(chosen)]
+    chosen += take(rows, MAX_EXAMPLES - len(chosen))
 
     terms = [entity.term, *entity.variants]
     return Evidence(
