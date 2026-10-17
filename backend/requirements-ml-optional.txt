@@ -1,0 +1,4 @@
+# Optional: only needed to evaluate the transformer sentiment candidate.
+-r requirements.txt
+transformers==5.20.1
+torch==2.14.1

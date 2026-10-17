@@ -8,7 +8,9 @@ from app.db.models import IngestionRun
 from app.db.session import get_db
 from app.ingestion.csv_import import CsvFormatError, parse_csv, parse_timezone, source_name
 from app.ingestion.matching import build_matchers
+from app.analytics.sentiment import score_pending
 from app.ingestion.service import ingest_records
+from app.ml.sentiment.registry import get_model
 from app.schemas.ingestion import CsvImportResult, RowErrorRead, RunRead
 
 router = APIRouter(prefix="/imports", tags=["imports"])
@@ -44,6 +46,8 @@ async def import_csv(
     run.coverage_json = {"file_name": file.filename, "unknown_columns": parsed.unknown_columns, "complete": not parsed.rejected}
     run.ended_at = datetime.now(UTC)
     db.commit()
+    if run.inserted_count:
+        score_pending(db, get_model(settings.sentiment_model), run.id)
     return CsvImportResult(
         run=RunRead.model_validate(run),
         errors=[RowErrorRead(row=e.row, column=e.column, message=e.message) for e in parsed.errors],

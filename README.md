@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 and 3 of the implementation plan are built:
+Weeks 2 to 4 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -15,6 +15,7 @@ Weeks 2 and 3 of the implementation plan are built:
 - Bluesky connector with paging, retries and backoff, behind a recorded terms review
 - Sync jobs with status, incremental windows, an optional scheduler, and deduplication so repeated syncs never double-count
 - Source health that tells "failed" and "incomplete" apart from "no mentions"
+- Sentiment on every stored post, with confidence, quality flags and model versioning ([model card](docs/model-card-sentiment.md), [evaluation](docs/evaluation/sentiment.md))
 - React + TypeScript + Vite + Tailwind UI with working Watchlists and Sources pages
 - Docker Compose for local development and GitHub Actions CI
 

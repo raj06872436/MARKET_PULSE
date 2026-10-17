@@ -8,10 +8,12 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.analytics.sentiment import score_pending
 from app.connectors.base import ConnectorError, FetchCoverage, NormalizedRecord, SourceConnector
 from app.db.models import IngestionRun, SourceConnection
 from app.ingestion.matching import build_matchers, search_terms
 from app.ingestion.service import IngestStats, ingest_records
+from app.ml.sentiment.base import SentimentModel
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +79,7 @@ def run_sync(
     run_id: uuid.UUID,
     session_factory: sessionmaker,
     connector_factory: Callable[[str], SourceConnector],
+    sentiment_model: SentimentModel | None = None,
 ) -> None:
     with session_factory() as db:
         run = db.get(IngestionRun, run_id)
@@ -128,4 +131,11 @@ def run_sync(
         }
         run.ended_at = now()
         db.commit()
+        if sentiment_model is not None and stats.inserted:
+            try:
+                score_pending(db, sentiment_model, run_id)
+            except Exception:
+                # Scoring can be retried later from /api/analysis/sentiment; the sync itself succeeded.
+                db.rollback()
+                logger.exception("Sentiment scoring failed", extra={"job_id": str(run_id)})
         logger.info("Sync %s finished: %s", run.source, run.status, extra={"job_id": str(run_id)})

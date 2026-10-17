@@ -9,6 +9,7 @@ from app.core.config import Settings, get_settings
 from app.db.models import IngestionRun, SocialRecord, SourceConnection
 from app.db.session import get_db, get_session_factory
 from app.jobs.runner import SyncNotAllowed, last_successful_run, queue_sync, run_sync
+from app.ml.sentiment.registry import get_model
 from app.schemas.ingestion import RunRead, SourceRead, SourceUpdate
 
 router = APIRouter(prefix="/sources", tags=["sources"])
@@ -108,5 +109,7 @@ def sync_source(
     except SyncNotAllowed as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from None
     if created:
-        background.add_task(run_sync, run.id, session_factory, lambda s: build_connector(s, settings))
+        background.add_task(
+            run_sync, run.id, session_factory, lambda s: build_connector(s, settings), get_model(settings.sentiment_model)
+        )
     return run
