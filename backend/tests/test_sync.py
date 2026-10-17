@@ -4,7 +4,7 @@ import pytest
 
 from app.api.routes import sources as sources_route
 from app.connectors.base import ConnectorError, ConnectorHealth, FetchCoverage, NormalizedRecord, SourceConnector
-from app.db.models import IngestionRun, SocialRecord
+from app.db.models import IngestionRun, NlpResult, SocialRecord
 
 
 def record(n: int, text="Redmi Note 14 is great") -> NormalizedRecord:
@@ -87,6 +87,12 @@ def test_sync_stores_and_matches_records(client, fake, watchlist_id):
     assert status["status"] == "ok"
     assert status["record_count"] == 3
     assert status["last_success_at"] is not None
+
+
+def test_synced_records_get_sentiment(client, fake, watchlist_id, db_session):
+    enable(client)
+    client.post("/api/sources/bluesky/sync")
+    assert db_session.query(NlpResult).count() == 3
 
 
 def test_repeated_sync_does_not_double_count(client, fake, watchlist_id, db_session):

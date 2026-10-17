@@ -16,9 +16,27 @@ class NlpResult(Base):
     preprocessing_version: Mapped[str] = mapped_column(String(50))
     sentiment: Mapped[str | None] = mapped_column(String(16))
     confidence: Mapped[float | None] = mapped_column(Float)
+    scores_json: Mapped[dict | None] = mapped_column(JSONType)
+    # Reasons to trust the label less (mixed, sarcasm_cue, low_signal, low_confidence, unsupported_script).
+    flags_json: Mapped[list | None] = mapped_column(JSONType)
     aspects_json: Mapped[list | None] = mapped_column(JSONType)
     topics_json: Mapped[list | None] = mapped_column(JSONType)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ModelVersion(UUIDPk, CreatedAt, Base):
+    """Every model that has produced stored outputs, with the evaluation that justified using it."""
+
+    __tablename__ = "model_versions"
+    __table_args__ = (UniqueConstraint("task", "name", "version"),)
+
+    task: Mapped[str] = mapped_column(String(32))
+    name: Mapped[str] = mapped_column(String(100))
+    version: Mapped[str] = mapped_column(String(100))
+    preprocessing_version: Mapped[str | None] = mapped_column(String(50))
+    status: Mapped[str] = mapped_column(String(16), default="candidate")
+    evaluation_json: Mapped[dict | None] = mapped_column(JSONType)
+    notes: Mapped[str | None] = mapped_column(Text)
 
 
 class DailyMetric(UUIDPk, Base):

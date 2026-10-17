@@ -1,0 +1,171 @@
+id,text,label,tags,split
+s001,Camera on the Redmi Note 14 is honestly amazing for this price,positive,,test
+s002,"Battery easily lasts two days, very happy with this phone",positive,,validation
+s003,Delivery came a day early and the box was perfectly packed,positive,,train
+s004,"Customer support replaced my charger within 48 hours, impressed",positive,,train
+s005,Display is super bright even in direct sunlight,positive,,train
+s006,Best budget phone I've owned so far,positive,,test
+s007,"Loving the new update, everything feels smoother",positive,,validation
+s008,"Build quality feels premium, didn't expect that at this price",positive,,train
+s009,"Fast charging is unreal, 0 to 80 in half an hour",positive,,train
+s010,Finally a phone that doesn't lag with 20 apps open,positive,,train
+s011,10/10 would recommend to anyone on a budget,positive,short,test
+s012,Great value for money 👍,positive,emoji;short,validation
+s013,This phone is fire 🔥🔥,positive,emoji;slang;short,train
+s014,"Not bad at all, actually pretty good",positive,negation,train
+s015,"Can't complain, it does everything I need",positive,negation,train
+s016,Never had a single crash in three months,positive,negation,test
+s017,Speakers are surprisingly loud and clear,positive,,validation
+s018,"Switched from the M35 and the difference in display quality is huge, love it",positive,comparative,train
+s019,"Way better than my old Poco, no heating at all",positive,comparative,train
+s020,Photos at night came out so much better than I expected,positive,,train
+s021,Return process was smooth and refund arrived in 3 days,positive,,test
+s022,"Mast phone hai yaar, camera ekdum badhiya",positive,hinglish,validation
+s023,"Battery backup zabardast hai, full day chal jata hai",positive,hinglish,train
+s024,"Paisa vasool phone, totally worth it",positive,hinglish;short,train
+s025,The service center staff were really helpful and patient,positive,,train
+s026,"Gaming performance is smooth, no frame drops in BGMI",positive,,test
+s027,"Software is clean, very little bloatware compared to before",positive,comparative,validation
+s028,"Absolutely love the design, the matte back looks classy",positive,,train
+s029,Wow the zoom on this thing is crazy good,positive,slang,train
+s030,Got it on sale and it's been perfect so far,positive,,train
+s031,Highly impressed with the fingerprint sensor speed,positive,,test
+s032,"Charger included in the box, nice touch",positive,short,validation
+s033,Sound quality on calls is crystal clear,positive,,train
+s034,"My mom finds it really easy to use, great for elderly users",positive,,train
+s035,"Updates arrive on time now, good job",positive,short,train
+s036,Screen is gorgeous for movies and youtube,positive,,test
+s037,Honestly didn't think a budget phone could feel this fast,positive,,validation
+s038,Packaging was eco-friendly and well thought out,positive,,train
+s039,"Customer care resolved my issue in one call, rare these days",positive,,train
+s040,Three weeks in and zero regrets,positive,negation;short,train
+s041,Love it ❤️,positive,emoji;short,test
+s042,The AMOLED panel makes everything pop,positive,,validation
+s043,"Wireless earbuds paired instantly, works great",positive,,train
+s044,"Super lightweight, I barely notice it in my pocket",positive,,train
+s045,Value for money king of 2026,positive,slang;short,train
+s046,Very satisfied with the purchase overall,positive,short,test
+s047,"Excellent battery, excellent camera, excellent price",positive,,validation
+s048,"Kya baat hai, display toh kamaal ka hai",positive,hinglish,train
+s049,The night mode is genuinely a game changer,positive,,train
+s050,Smooth 120Hz scrolling makes my old phone feel ancient,positive,comparative,train
+s051,Phone heats up like crazy while gaming,negative,,test
+s052,Battery drains overnight even with nothing running,negative,,validation
+s053,"Worst customer support ever, no reply in a week",negative,,train
+s054,Delivery was late again and the box was damaged,negative,,train
+s055,"The update broke my wifi, can't connect anymore",negative,,train
+s056,"Camera is blurry indoors, really disappointing",negative,,test
+s057,"Screen cracked after a small drop, terrible build",negative,,validation
+s058,Too much bloatware and ads everywhere,negative,,train
+s059,Stopped charging after two months,negative,,train
+s060,Refund still pending after 20 days,negative,,train
+s061,Not worth the money at all,negative,negation;short,test
+s062,Never buying from this brand again,negative,negation;short,validation
+s063,Speaker crackles at high volume,negative,,train
+s064,Fingerprint sensor barely works with wet hands,negative,,train
+s065,"Lags constantly, can't even scroll Instagram smoothly",negative,,train
+s066,Service center kept my phone for 3 weeks and still didn't fix it,negative,,test
+s067,Worse than my old Poco honestly,negative,comparative;short,validation
+s068,The M35 update made battery life way worse,negative,comparative,train
+s069,Waste of money 😡,negative,emoji;short,train
+s070,"Ugh, it keeps restarting randomly",negative,slang,train
+s071,"Bekaar phone hai, garam bahut hota hai",negative,hinglish,test
+s072,"Battery ekdum ghatiya, aadha din bhi nahi chalta",negative,hinglish,validation
+s073,Customer care wale phone hi nahi uthate,negative,hinglish,train
+s074,Network drops every time I enter a building,negative,,train
+s075,Charger got so hot I was scared to leave it plugged in,negative,,train
+s076,Camera app crashes whenever I switch to video,negative,,test
+s077,Display has a green tint after the latest update,negative,,validation
+s078,"Received a used unit with scratches, unacceptable",negative,,train
+s079,Ads in the settings app? Seriously?,negative,question,train
+s080,Touch response is laggy and inaccurate,negative,,train
+s081,"Cheap plastic feel, creaks when you press the back",negative,,test
+s082,"The phone overheats and then the screen dims, annoying",negative,,validation
+s083,"Don't buy this, the battery is a disaster",negative,negation,train
+s084,Three replacements and every unit had the same defect,negative,,train
+s085,Mic doesn't pick up my voice on calls,negative,,train
+s086,"Order cancelled without any reason, very frustrating",negative,,test
+s087,Software updates are slow and full of bugs,negative,,validation
+s088,"Low light photos look like paintings, so much smoothing",negative,,train
+s089,Earbuds disconnect every few minutes,negative,,train
+s090,Regret buying this 👎,negative,emoji;short,train
+s091,Paid extra for fast delivery and it still took 10 days,negative,,test
+s092,The volume button got stuck within a month,negative,,validation
+s093,Absolutely horrible experience with the exchange offer,negative,,train
+s094,Phone is ok but support is a nightmare,negative,mixed,train
+s095,"No headphone jack and no adapter in the box, annoying",negative,,train
+s096,Totally overpriced for what you get,negative,short,test
+s097,"Kitna slow hai yeh phone, bilkul pasand nahi aaya",negative,hinglish,validation
+s098,Can't believe how bad the GPS accuracy is,negative,negation,train
+s099,Hotspot keeps turning itself off,negative,,train
+s100,This is the third time my order got delayed,negative,,train
+s101,"Oh great, another update that kills my battery. Just what I needed",negative,sarcasm,test
+s102,Love how the phone heats up enough to cook eggs,negative,sarcasm,validation
+s103,"Wow, only took support 3 weeks to reply. Amazing service",negative,sarcasm,train
+s104,"Fantastic, the screen cracked from a 10cm drop. Truly premium",negative,sarcasm,train
+s105,"Thanks for the ads in my lock screen, really enhances the experience",negative,sarcasm,train
+s106,Nothing says flagship like lagging on WhatsApp,negative,sarcasm,test
+s107,"Yeah sure, 'fast charging', if 3 hours counts as fast",negative,sarcasm,validation
+s108,Brilliant idea to remove the charger from the box. Genius,negative,sarcasm,train
+s109,"Waah kya service hai, 15 din se reply nahi aaya",negative,sarcasm;hinglish,train
+s110,So glad I paid extra for a camera that can't focus,negative,sarcasm,train
+s111,Camera is great but the battery is terrible,negative,mixed,test
+s112,Battery is terrible but the camera is great,positive,mixed,test
+s113,"Good phone, bad delivery experience",negative,mixed;short,validation
+s114,Display is beautiful though it heats up a little when gaming,positive,mixed,validation
+s115,"Love the design, hate the software",negative,mixed;short,train
+s116,"Decent performance, average camera, poor battery",negative,mixed,train
+s117,Support was slow but they did fix the problem eventually,positive,mixed,train
+s118,Great specs on paper but real world performance is meh,negative,mixed,train
+s119,Phone accha hai par charger slow hai,positive,mixed;hinglish,train
+s120,"Pricey, but honestly worth every rupee",positive,mixed,train
+s121,Redmi Note 14 launching in India on 25th September,neutral,news,test
+s122,"Which is better for gaming, Poco X7 or Galaxy M35?",neutral,question;comparative,validation
+s123,Does the Redmi Note 14 support 5G on Jio?,neutral,question,train
+s124,Price drop expected during the festive sale,neutral,news,train
+s125,Unboxing video coming tomorrow,neutral,short,train
+s126,Anyone know if the Note 14 has an IR blaster?,neutral,question,test
+s127,Comparing specs of the M35 and Note 14 side by side,neutral,comparative,validation
+s128,"Ordered the blue variant, arriving Friday",neutral,,train
+s129,The phone has a 5000mAh battery and 45W charging,neutral,,train
+s130,Is there a case that fits the Poco X7?,neutral,question,train
+s131,Samsung announced the M35 successor today,neutral,news,test
+s132,Update version 2.1.4 is rolling out in phases,neutral,news,validation
+s133,Thinking of switching phones this Diwali,neutral,,train
+s134,What's the warranty period on refurbished units?,neutral,question,train
+s135,Store opens at 10am for the launch sale,neutral,news,train
+s136,Kaunsa phone lena chahiye 15k ke andar?,neutral,question;hinglish,test
+s137,Note 14 aur M35 mein kya difference hai?,neutral,question;hinglish;comparative,validation
+s138,Sale kab start hogi?,neutral,question;hinglish;short,train
+s139,"Got the phone today, will post a review after a week",neutral,,train
+s140,"The box includes a case, cable and charger",neutral,,train
+s141,Thread for all Redmi Note 14 owners,neutral,short,test
+s142,Benchmarks for the new chipset leaked online,neutral,news,validation
+s143,Poco X7 available in three colours,neutral,news;short,train
+s144,How do I turn off the always on display?,neutral,question,train
+s145,Reviewing budget phones under 20k this week,neutral,,train
+s146,Exchange offer valid till Sunday,neutral,news;short,test
+s147,Phone weighs 190 grams,neutral,short,validation
+s148,Has anyone tried the new camera update yet?,neutral,question,train
+s149,Comparison video: Redmi vs Realme vs Poco,neutral,comparative,train
+s150,"Customer care number changed, new one is on the website",neutral,,train
+s151,Phone arrived,neutral,short,test
+s152,It's a phone. It makes calls.,neutral,short,validation
+s153,Meh,neutral,short,train
+s154,"Okay-ish I guess, nothing special",neutral,short,train
+s155,Still deciding between the 128GB and 256GB variant,neutral,,train
+s156,Delivery scheduled for next Tuesday,neutral,,test
+s157,The update size is about 1.2GB,neutral,,validation
+s158,"Specs: 6.67 inch AMOLED, 120Hz, 108MP main camera",neutral,,train
+s159,Where can I get the screen replaced in Pune?,neutral,question,train
+s160,Has the price changed since launch?,neutral,question,train
+s161,Battery health is at 96% after 6 months,neutral,,test
+s162,Will the Note 14 get Android 17?,neutral,question,validation
+s163,Kal delivery hogi,neutral,hinglish;short,train
+s164,Tech news roundup: three phone launches this week,neutral,news,train
+s165,"Testing the camera in low light tonight, results tomorrow",neutral,,train
+s166,Poll: which brand has the best after-sales service?,neutral,question,test
+s167,Charging cable is USB-C,neutral,short,validation
+s168,Firmware changelog mentions camera and battery fixes,neutral,news,train
+s169,My brother bought the M35 yesterday,neutral,,train
+s170,The launch event is streaming on YouTube at 12,neutral,news,train
