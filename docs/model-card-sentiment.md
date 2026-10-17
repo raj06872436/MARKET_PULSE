@@ -8,7 +8,7 @@ Labels each stored post as **positive**, **neutral** or **negative**, with a con
 
 | Model | How it works | Status |
 | --- | --- | --- |
-| `lexicon` (`lex-1`) | Product-review word list with negation ("not bad"), intensifiers ("very"), contrast ("A but B" weights B), emoji, common Hinglish words, and sarcasm cues | **Active**: best validation macro F1 |
+| `lexicon` (`lex-2`) | Product-review word list with negation ("not bad"), intensifiers ("very"), contrast ("A but B" weights B), emoji, common Hinglish words, and sarcasm cues | **Active**: best validation macro F1 |
 | `tfidf-logreg` | TF-IDF word and character n-grams with logistic regression, trained on the train split | Benchmark only: too little training data |
 | `transformer` | Pretrained `cardiffnlp/twitter-xlm-roberta-base-sentiment`, optional | Not yet evaluated: needs `requirements-ml-optional.txt` and access to huggingface.co. Check its licence before use |
 

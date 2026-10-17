@@ -1,5 +1,8 @@
 import type {
   CsvImportResult,
+  Evidence,
+  SeriesResponse,
+  TrendCard,
   IngestionRun,
   Source,
   TrackedEntity,
@@ -66,6 +69,14 @@ export const api = {
   syncSource: (source: string) => request<IngestionRun>(`/sources/${source}/sync`, { method: "POST" }),
   getJob: (id: string) => request<IngestionRun>(`/jobs/${id}`),
   listJobs: (limit = 20) => request<IngestionRun[]>(`/jobs?limit=${limit}`),
+  trends: (watchlistId: string) => request<TrendCard[]>(`/trends?watchlist_id=${watchlistId}`),
+  series: (entityIds: string[], start: string, end: string, sources?: string[]) => {
+    const params = new URLSearchParams({ entity_ids: entityIds.join(","), start, end });
+    sources?.forEach((s) => params.append("source", s));
+    return request<SeriesResponse>(`/metrics/series?${params}`);
+  },
+  evidence: (entityId: string, start: string, end: string) =>
+    request<Evidence>(`/entities/${entityId}/evidence?start=${start}&end=${end}`),
   importCsv: (file: File, dataset: string, timezone: string) => {
     const form = new FormData();
     form.append("file", file);

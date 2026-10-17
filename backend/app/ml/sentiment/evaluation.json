@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T16:00:51+00:00",
+  "generated_at": "2026-10-17T16:12:24+00:00",
   "dataset": {
     "hash": "cef3c926",
     "train": 102,
@@ -19,7 +19,7 @@
   "models": {
     "lexicon": {
       "name": "lexicon",
-      "version": "lex-1",
+      "version": "lex-2",
       "validation": {
         "n": 34,
         "accuracy": 0.8529,
@@ -68,7 +68,7 @@
             ]
           ]
         },
-        "ece": 0.1158,
+        "ece": 0.1133,
         "by_tag": {
           "comparative": {
             "n": 5,

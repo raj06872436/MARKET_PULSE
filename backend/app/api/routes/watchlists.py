@@ -1,11 +1,15 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, sessionmaker
+
+from app.analytics.pipeline import run_analysis
+from app.core.config import Settings, get_settings
+from app.ml.sentiment.registry import get_model
 
 from app.db.models import TrackedEntity, Watchlist, Workspace
-from app.db.session import get_db
+from app.db.session import get_db, get_session_factory
 from app.schemas.watchlist import (
     TrackedEntityCreate,
     TrackedEntityRead,
@@ -16,6 +20,12 @@ from app.schemas.watchlist import (
 )
 
 router = APIRouter(prefix="/watchlists", tags=["watchlists"])
+
+
+def _reanalyze(session_factory: sessionmaker, model_name: str) -> None:
+    """Terms changed: match older posts to them and refresh the aggregates."""
+    with session_factory() as db:
+        run_analysis(db, get_model(model_name))
 
 
 def _get_watchlist(db: Session, watchlist_id: uuid.UUID) -> Watchlist:
@@ -67,7 +77,14 @@ def delete_watchlist(watchlist_id: uuid.UUID, db: Session = Depends(get_db)) -> 
 
 
 @router.post("/{watchlist_id}/entities", response_model=TrackedEntityRead, status_code=status.HTTP_201_CREATED)
-def add_entity(watchlist_id: uuid.UUID, body: TrackedEntityCreate, db: Session = Depends(get_db)) -> TrackedEntity:
+def add_entity(
+    watchlist_id: uuid.UUID,
+    body: TrackedEntityCreate,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+    session_factory: sessionmaker = Depends(get_session_factory),
+    settings: Settings = Depends(get_settings),
+) -> TrackedEntity:
     watchlist = _get_watchlist(db, watchlist_id)
     normalized = normalize_term(body.term)
     if any(entity.normalized_term == normalized for entity in watchlist.entities):
@@ -82,6 +99,7 @@ def add_entity(watchlist_id: uuid.UUID, body: TrackedEntityCreate, db: Session =
     )
     db.add(entity)
     db.commit()
+    background.add_task(_reanalyze, session_factory, settings.sentiment_model)
     return entity
 
 
