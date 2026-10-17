@@ -62,6 +62,7 @@ connector ──┘                                                            �
 2. **Score sentiment** for records without a result from the active model version, and tag aspects (`app/ml/topics/aspects.py`). Aspects are scored per clause, so "great camera but the battery dies fast" is positive for camera and negative for battery.
 3. **Rebuild `daily_metrics`** for every UTC day a source covered. A CSV covers the span of its dates; an API sync covers its requested window. A covered day with no posts gets a row with 0 mentions. A day no source covered gets no row, and the API returns it as `mentions: null` with `collection: "missing"`, which the charts shade as "not collected".
 4. **Rebuild `trend_signals`** for each entity and day.
+5. **Refresh forecasts** for terms whose data has a newer collected day than their last forecast (see [the forecast model card](model-card-forecast.md)).
 
 Rebuilding from stored records each time keeps the numbers reproducible; `python -m app.analytics.reconcile` checks them against raw counts.
 
@@ -81,3 +82,7 @@ A component without data (no engagement fields, too few scored posts) is dropped
 Each signal has one explanation code: `insufficient_data`, `one_day_spike`, `rising_negative`, `rising_mentions`, `falling_mentions`, `sentiment_drop`, `sentiment_rise` or `stable`. The trend card shows the score, the code in words, the component table, sentiment split, most discussed aspects, frequent phrases and up to five example posts with links.
 
 Frequent phrases are unreviewed n-grams and are labelled as such. Topic clustering is left out until there is enough real data to judge it.
+
+## Forecasts
+
+`app/ml/forecasting/` holds the methods (`models.py`), the rolling-origin back-test (`backtest.py`) and the service that checks the data, picks the method with the lowest back-test WAPE, fits it on all history and stores a `forecast_runs` row with `forecast_points`. A run that fails a data check is stored with `status = insufficient_data` and its reasons, and has no points. `POST /api/forecasts` runs one on demand; `GET /api/forecasts/{id}` returns it with the last 56 days of history and, once forecast days are collected, the actual values beside the forecast.

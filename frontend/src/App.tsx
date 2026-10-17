@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import { api } from "./api/client";
 import { Layout } from "./components/Layout";
+import { ForecastsPage } from "./pages/ForecastsPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { SourcesPage } from "./pages/SourcesPage";
@@ -70,16 +71,7 @@ export default function App() {
             />
           }
         />
-        <Route
-          path="/forecasts"
-          element={
-            <PlaceholderPage
-              title="Forecasts"
-              description="7-day attention forecasts with uncertainty ranges and back-test results."
-              note="Forecasts are planned for weeks 5 and 6 and will only show once they beat a seasonal-naive baseline."
-            />
-          }
-        />
+        <Route path="/forecasts" element={<ForecastsPage watchlists={watchlists} />} />
         <Route
           path="/insights"
           element={

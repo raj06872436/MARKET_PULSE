@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 5 of the implementation plan are built:
+Weeks 2 to 6 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -19,10 +19,11 @@ Weeks 2 to 5 of the implementation plan are built:
 - Aspect tagging (price, battery, camera, delivery and more) and frequent phrases per entity
 - Daily metrics per entity that keep "not collected" days apart from zero-mention days
 - An explainable trend score with confidence, components and example posts ([how it works](docs/architecture.md#trend-score))
-- React + TypeScript + Vite + Tailwind UI with an Overview page (daily mentions chart and trend cards), Watchlists and Sources
+- Daily mention forecasts with an 80% range, compared against three baselines in a rolling back-test, and a "not enough reliable data" state when the data doesn't support one ([model card](docs/model-card-forecast.md), [back-test](docs/evaluation/forecast.md))
+- React + TypeScript + Vite + Tailwind UI with Overview (daily mentions chart and trend cards), Forecasts, Watchlists and Sources pages
 - Docker Compose for local development and GitHub Actions CI
 
-Forecasting, insights, alerts and authentication come in later weeks. See [docs/architecture.md](docs/architecture.md).
+Insights, alerts and authentication come in later weeks. See [docs/architecture.md](docs/architecture.md).
 
 ## Getting data in
 
@@ -47,6 +48,12 @@ To check that the dashboard numbers match the raw records for a date range:
 
 ```bash
 python -m app.analytics.reconcile --start 2026-09-01 --end 2026-10-17
+```
+
+To rebuild the forecast back-test report from the latest forecasts:
+
+```bash
+python -m app.ml.forecasting.report --out ../docs/evaluation/forecast.md
 ```
 
 ## Run with Docker
