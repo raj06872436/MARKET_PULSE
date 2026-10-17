@@ -11,10 +11,11 @@ from app.db.models.analytics import (
     TrendSignal,
 )
 from app.db.models.ingestion import IngestionRun, RecordMatch, SocialRecord, SourceConnection
-from app.db.models.watchlist import Alert, TrackedEntity, Watchlist
+from app.db.models.watchlist import Alert, AlertEvent, TrackedEntity, Watchlist
 
 __all__ = [
     "Alert",
+    "AlertEvent",
     "AuditEvent",
     "DailyMetric",
     "ForecastPoint",

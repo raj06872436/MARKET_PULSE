@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 
 import { api } from "../api/client";
+import { AlertsPanel } from "../components/AlertsPanel";
 import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import type { EntityType, Watchlist } from "../types/api";
@@ -168,6 +169,7 @@ function WatchlistCard({ watchlist, run }: { watchlist: Watchlist; run: (a: () =
         />
         <button className="rounded-md bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-900">Add</button>
       </form>
+      {watchlist.entities.length > 0 && <AlertsPanel watchlist={watchlist} />}
     </section>
   );
 }

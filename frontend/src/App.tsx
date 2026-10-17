@@ -6,9 +6,9 @@ import { Layout } from "./components/Layout";
 import { ComparePage } from "./pages/ComparePage";
 import { ExplorePage } from "./pages/ExplorePage";
 import { ForecastsPage } from "./pages/ForecastsPage";
+import { InsightsPage } from "./pages/InsightsPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { SentimentPage } from "./pages/SentimentPage";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { SourcesPage } from "./pages/SourcesPage";
 import { WatchlistsPage } from "./pages/WatchlistsPage";
 import type { Watchlist, Workspace } from "./types/api";
@@ -68,16 +68,7 @@ export default function App() {
         <Route path="/sentiment" element={<SentimentPage watchlists={watchlists} />} />
         <Route path="/compare" element={<ComparePage watchlists={watchlists} />} />
         <Route path="/forecasts" element={<ForecastsPage watchlists={watchlists} />} />
-        <Route
-          path="/insights"
-          element={
-            <PlaceholderPage
-              title="Insights"
-              description="Evidence-linked summaries of what changed and why it may matter."
-              note="Insight cards are planned for weeks 7 and 8."
-            />
-          }
-        />
+        <Route path="/insights" element={<InsightsPage watchlists={watchlists} />} />
         <Route path="/sources" element={<SourcesPage />} />
       </Routes>
     </Layout>
