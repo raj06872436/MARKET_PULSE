@@ -1,0 +1,636 @@
+{
+  "generated_at": "2026-10-17T16:00:51+00:00",
+  "dataset": {
+    "hash": "cef3c926",
+    "train": 102,
+    "validation": 34,
+    "test": 34
+  },
+  "preprocessing_version": "pre-1",
+  "tfidf_c_search": {
+    "0.5": 0.5032,
+    "1.0": 0.5299,
+    "2.0": 0.5299,
+    "5.0": 0.5299,
+    "10.0": 0.5299
+  },
+  "tfidf_selected_c": 1.0,
+  "selected": "lexicon",
+  "models": {
+    "lexicon": {
+      "name": "lexicon",
+      "version": "lex-1",
+      "validation": {
+        "n": 34,
+        "accuracy": 0.8529,
+        "macro_f1": 0.8535,
+        "per_class": {
+          "negative": {
+            "precision": 0.9091,
+            "recall": 0.7692,
+            "f1": 0.8333,
+            "support": 13
+          },
+          "neutral": {
+            "precision": 0.75,
+            "recall": 0.9,
+            "f1": 0.8182,
+            "support": 10
+          },
+          "positive": {
+            "precision": 0.9091,
+            "recall": 0.9091,
+            "f1": 0.9091,
+            "support": 11
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_true_cols_pred": [
+            [
+              10,
+              3,
+              0
+            ],
+            [
+              0,
+              9,
+              1
+            ],
+            [
+              1,
+              0,
+              10
+            ]
+          ]
+        },
+        "ece": 0.1158,
+        "by_tag": {
+          "comparative": {
+            "n": 5,
+            "accuracy": 0.6
+          },
+          "emoji": {
+            "n": 1,
+            "accuracy": 1.0
+          },
+          "hinglish": {
+            "n": 4,
+            "accuracy": 0.75
+          },
+          "mixed": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "negation": {
+            "n": 1,
+            "accuracy": 0.0
+          },
+          "news": {
+            "n": 2,
+            "accuracy": 1.0
+          },
+          "plain": {
+            "n": 13,
+            "accuracy": 1.0
+          },
+          "question": {
+            "n": 3,
+            "accuracy": 0.6667
+          },
+          "sarcasm": {
+            "n": 2,
+            "accuracy": 1.0
+          },
+          "short": {
+            "n": 8,
+            "accuracy": 0.75
+          }
+        },
+        "flagged_share": 0.4706,
+        "flagged_accuracy": 0.75
+      },
+      "test": {
+        "n": 34,
+        "accuracy": 0.8824,
+        "macro_f1": 0.8832,
+        "per_class": {
+          "negative": {
+            "precision": 0.9167,
+            "recall": 0.8462,
+            "f1": 0.88,
+            "support": 13
+          },
+          "neutral": {
+            "precision": 0.9,
+            "recall": 0.9,
+            "f1": 0.9,
+            "support": 10
+          },
+          "positive": {
+            "precision": 0.8333,
+            "recall": 0.9091,
+            "f1": 0.8696,
+            "support": 11
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_true_cols_pred": [
+            [
+              11,
+              1,
+              1
+            ],
+            [
+              0,
+              9,
+              1
+            ],
+            [
+              1,
+              0,
+              10
+            ]
+          ]
+        },
+        "ece": 0.1455,
+        "by_tag": {
+          "emoji": {
+            "n": 1,
+            "accuracy": 1.0
+          },
+          "hinglish": {
+            "n": 2,
+            "accuracy": 1.0
+          },
+          "mixed": {
+            "n": 2,
+            "accuracy": 1.0
+          },
+          "negation": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "news": {
+            "n": 3,
+            "accuracy": 1.0
+          },
+          "plain": {
+            "n": 15,
+            "accuracy": 0.8667
+          },
+          "question": {
+            "n": 3,
+            "accuracy": 0.6667
+          },
+          "sarcasm": {
+            "n": 2,
+            "accuracy": 1.0
+          },
+          "short": {
+            "n": 8,
+            "accuracy": 1.0
+          }
+        },
+        "flagged_share": 0.4706,
+        "flagged_accuracy": 0.875,
+        "errors": [
+          {
+            "id": "s016",
+            "text": "Never had a single crash in three months",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.836,
+            "flags": []
+          },
+          {
+            "id": "s066",
+            "text": "Service center kept my phone for 3 weeks and still didn't fix it",
+            "true": "negative",
+            "pred": "neutral",
+            "confidence": 0.5267,
+            "flags": [
+              "low_signal"
+            ]
+          },
+          {
+            "id": "s091",
+            "text": "Paid extra for fast delivery and it still took 10 days",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.4573,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s166",
+            "text": "Poll: which brand has the best after-sales service?",
+            "true": "neutral",
+            "pred": "positive",
+            "confidence": 0.919,
+            "flags": []
+          }
+        ]
+      }
+    },
+    "tfidf-logreg": {
+      "name": "tfidf-logreg",
+      "version": "tfidf-1-c1-cef3c926",
+      "validation": {
+        "n": 34,
+        "accuracy": 0.5294,
+        "macro_f1": 0.5299,
+        "per_class": {
+          "negative": {
+            "precision": 0.6364,
+            "recall": 0.5385,
+            "f1": 0.5833,
+            "support": 13
+          },
+          "neutral": {
+            "precision": 0.5556,
+            "recall": 0.5,
+            "f1": 0.5263,
+            "support": 10
+          },
+          "positive": {
+            "precision": 0.4286,
+            "recall": 0.5455,
+            "f1": 0.48,
+            "support": 11
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_true_cols_pred": [
+            [
+              7,
+              2,
+              4
+            ],
+            [
+              1,
+              5,
+              4
+            ],
+            [
+              3,
+              2,
+              6
+            ]
+          ]
+        },
+        "ece": 0.0804,
+        "by_tag": {
+          "comparative": {
+            "n": 5,
+            "accuracy": 0.4
+          },
+          "emoji": {
+            "n": 1,
+            "accuracy": 1.0
+          },
+          "hinglish": {
+            "n": 4,
+            "accuracy": 0.5
+          },
+          "mixed": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "negation": {
+            "n": 1,
+            "accuracy": 1.0
+          },
+          "news": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "plain": {
+            "n": 13,
+            "accuracy": 0.5385
+          },
+          "question": {
+            "n": 3,
+            "accuracy": 0.6667
+          },
+          "sarcasm": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "short": {
+            "n": 8,
+            "accuracy": 0.375
+          }
+        },
+        "flagged_share": 0.7353,
+        "flagged_accuracy": 0.48
+      },
+      "test": {
+        "n": 34,
+        "accuracy": 0.3824,
+        "macro_f1": 0.3898,
+        "per_class": {
+          "negative": {
+            "precision": 0.3571,
+            "recall": 0.3846,
+            "f1": 0.3704,
+            "support": 13
+          },
+          "neutral": {
+            "precision": 0.5556,
+            "recall": 0.5,
+            "f1": 0.5263,
+            "support": 10
+          },
+          "positive": {
+            "precision": 0.2727,
+            "recall": 0.2727,
+            "f1": 0.2727,
+            "support": 11
+          }
+        },
+        "confusion_matrix": {
+          "labels": [
+            "negative",
+            "neutral",
+            "positive"
+          ],
+          "rows_true_cols_pred": [
+            [
+              5,
+              2,
+              6
+            ],
+            [
+              3,
+              5,
+              2
+            ],
+            [
+              6,
+              2,
+              3
+            ]
+          ]
+        },
+        "ece": 0.069,
+        "by_tag": {
+          "emoji": {
+            "n": 1,
+            "accuracy": 1.0
+          },
+          "hinglish": {
+            "n": 2,
+            "accuracy": 0.0
+          },
+          "mixed": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "negation": {
+            "n": 2,
+            "accuracy": 0.0
+          },
+          "news": {
+            "n": 3,
+            "accuracy": 0.6667
+          },
+          "plain": {
+            "n": 15,
+            "accuracy": 0.3333
+          },
+          "question": {
+            "n": 3,
+            "accuracy": 0.6667
+          },
+          "sarcasm": {
+            "n": 2,
+            "accuracy": 0.5
+          },
+          "short": {
+            "n": 8,
+            "accuracy": 0.25
+          }
+        },
+        "flagged_share": 0.7647,
+        "flagged_accuracy": 0.4231,
+        "errors": [
+          {
+            "id": "s001",
+            "text": "Camera on the Redmi Note 14 is honestly amazing for this price",
+            "true": "positive",
+            "pred": "neutral",
+            "confidence": 0.5427,
+            "flags": []
+          },
+          {
+            "id": "s011",
+            "text": "10/10 would recommend to anyone on a budget",
+            "true": "positive",
+            "pred": "neutral",
+            "confidence": 0.422,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s016",
+            "text": "Never had a single crash in three months",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.4254,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s026",
+            "text": "Gaming performance is smooth, no frame drops in BGMI",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.5511,
+            "flags": []
+          },
+          {
+            "id": "s031",
+            "text": "Highly impressed with the fingerprint sensor speed",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.4923,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s036",
+            "text": "Screen is gorgeous for movies and youtube",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.36,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s046",
+            "text": "Very satisfied with the purchase overall",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.4428,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s051",
+            "text": "Phone heats up like crazy while gaming",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.3819,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s061",
+            "text": "Not worth the money at all",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.5153,
+            "flags": []
+          },
+          {
+            "id": "s066",
+            "text": "Service center kept my phone for 3 weeks and still didn't fix it",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.5192,
+            "flags": []
+          },
+          {
+            "id": "s071",
+            "text": "Bekaar phone hai, garam bahut hota hai",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.6008,
+            "flags": []
+          },
+          {
+            "id": "s076",
+            "text": "Camera app crashes whenever I switch to video",
+            "true": "negative",
+            "pred": "neutral",
+            "confidence": 0.4623,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s081",
+            "text": "Cheap plastic feel, creaks when you press the back",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.3963,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s096",
+            "text": "Totally overpriced for what you get",
+            "true": "negative",
+            "pred": "positive",
+            "confidence": 0.3884,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s106",
+            "text": "Nothing says flagship like lagging on WhatsApp",
+            "true": "negative",
+            "pred": "neutral",
+            "confidence": 0.4039,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s112",
+            "text": "Battery is terrible but the camera is great",
+            "true": "positive",
+            "pred": "negative",
+            "confidence": 0.4148,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s136",
+            "text": "Kaunsa phone lena chahiye 15k ke andar?",
+            "true": "neutral",
+            "pred": "positive",
+            "confidence": 0.4198,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s146",
+            "text": "Exchange offer valid till Sunday",
+            "true": "neutral",
+            "pred": "negative",
+            "confidence": 0.4419,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s151",
+            "text": "Phone arrived",
+            "true": "neutral",
+            "pred": "positive",
+            "confidence": 0.4491,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s156",
+            "text": "Delivery scheduled for next Tuesday",
+            "true": "neutral",
+            "pred": "negative",
+            "confidence": 0.3445,
+            "flags": [
+              "low_confidence"
+            ]
+          },
+          {
+            "id": "s161",
+            "text": "Battery health is at 96% after 6 months",
+            "true": "neutral",
+            "pred": "negative",
+            "confidence": 0.5206,
+            "flags": []
+          }
+        ]
+      }
+    }
+  },
+  "notes": {}
+}
