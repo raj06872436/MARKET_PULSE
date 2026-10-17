@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     # "auto" uses whichever model the latest evaluation selected (app/ml/sentiment/evaluation.json).
     sentiment_model: str = "auto"
 
+    # Insight cards. Template cards always work. Set INSIGHTS_LLM_ENABLED=true and ANTHROPIC_API_KEY to let
+    # Claude write them from the same validated facts; anything that fails validation falls back to templates.
+    insights_llm_enabled: bool = False
+    anthropic_api_key: str | None = None
+    insights_model: str = "claude-opus-5-5"
+
     csv_max_bytes: int = 10 * 1024 * 1024
     csv_max_rows: int = 50_000
 

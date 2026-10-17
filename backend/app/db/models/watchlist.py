@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, CreatedAt, JSONType, UUIDPk
@@ -43,3 +43,17 @@ class Alert(UUIDPk, CreatedAt, Base):
     cooldown_minutes: Mapped[int] = mapped_column(Integer, default=1440)
     last_triggered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class AlertEvent(UUIDPk, Base):
+    """One firing of an alert rule. The data date is the collected day the rule was checked on."""
+
+    __tablename__ = "alert_events"
+    __table_args__ = (UniqueConstraint("alert_id", "data_date"),)
+
+    alert_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("alerts.id", ondelete="CASCADE"), index=True)
+    triggered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    data_date: Mapped[date] = mapped_column(Date)
+    value: Mapped[float] = mapped_column(Float)
+    threshold: Mapped[float] = mapped_column(Float)
+    message: Mapped[str] = mapped_column(Text)

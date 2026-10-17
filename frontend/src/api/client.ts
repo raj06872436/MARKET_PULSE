@@ -1,5 +1,9 @@
 import type {
+  Alert,
+  AlertEvent,
+  AlertRule,
   CsvImportResult,
+  InsightBatch,
   Comparison,
   DataRange,
   Evidence,
@@ -109,6 +113,21 @@ export const api = {
     request<Forecast>("/forecasts", { method: "POST", body: JSON.stringify({ entity_id: entityId, horizon_days: horizonDays }) }),
   evidence: (entityId: string, start: string, end: string) =>
     request<Evidence>(`/entities/${entityId}/evidence?start=${start}&end=${end}`),
+  insights: (watchlistId: string) => request<InsightBatch>(`/insights?watchlist_id=${watchlistId}`),
+  generateInsights: (watchlistId: string, useLlm = true) =>
+    request<InsightBatch>("/insights/generate", { method: "POST", body: JSON.stringify({ watchlist_id: watchlistId, use_llm: useLlm }) }),
+  exportUrl: (watchlistId: string, start: string, end: string, sources?: string[]) => {
+    const params = new URLSearchParams({ watchlist_id: watchlistId, start, end });
+    sources?.forEach((s) => params.append("source", s));
+    return `/api/export/daily.csv?${params}`;
+  },
+  alerts: (watchlistId: string) => request<Alert[]>(`/alerts?watchlist_id=${watchlistId}`),
+  alertEvents: (watchlistId: string, limit = 20) => request<AlertEvent[]>(`/alerts/events?watchlist_id=${watchlistId}&limit=${limit}`),
+  createAlert: (entityId: string, rule: AlertRule, cooldownMinutes: number) =>
+    request<Alert>("/alerts", { method: "POST", body: JSON.stringify({ entity_id: entityId, rule, cooldown_minutes: cooldownMinutes }) }),
+  updateAlert: (id: string, patch: { active?: boolean }) =>
+    request<Alert>(`/alerts/${id}`, { method: "PATCH", body: JSON.stringify(patch) }),
+  deleteAlert: (id: string) => request<void>(`/alerts/${id}`, { method: "DELETE" }),
   importCsv: (file: File, dataset: string, timezone: string) => {
     const form = new FormData();
     form.append("file", file);

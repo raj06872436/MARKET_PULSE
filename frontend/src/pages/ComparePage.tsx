@@ -6,6 +6,7 @@ import { LineSeriesChart, toLineSeries } from "../charts/LineSeriesChart";
 import { pct } from "../charts/format";
 import { seriesColor } from "../charts/palette";
 import { EmptyState } from "../components/EmptyState";
+import { ExportLink } from "../components/ExportLink";
 import { FilterBar } from "../components/FilterBar";
 import { PageHeader } from "../components/PageHeader";
 import { CoverageLabel } from "../components/RecordBits";
@@ -39,7 +40,8 @@ export function ComparePage({ watchlists }: { watchlists: Watchlist[] }) {
 
   return (
     <>
-      <PageHeader title="Compare" description="Your terms side by side over the same dates and sources, with how much of each was actually collected." />
+      <PageHeader title="Compare" description="Your terms side by side over the same dates and sources, with how much of each was actually collected."
+        actions={<ExportLink filters={filters} />} />
       <FilterBar filters={filters} watchlists={watchlists} />
 
       {!watchlist || watchlist.entities.length < 2 ? (
