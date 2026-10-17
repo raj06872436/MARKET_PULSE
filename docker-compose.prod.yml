@@ -1,0 +1,38 @@
+# The production image with its own database, for trying a deployment locally or on a single server.
+#   cp .env.example .env   # then set POSTGRES_PASSWORD and, for plain http on localhost, COOKIE_SECURE=false
+#   docker compose -f docker-compose.prod.yml up --build -d
+#   docker compose -f docker-compose.prod.yml exec app python -m app.demo.seed   # optional demo data
+# See docs/deployment.md. On a managed platform, use its database instead of the db service.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: marketpulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: marketpulse
+    volumes:
+      - pgdata-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marketpulse"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://marketpulse:${POSTGRES_PASSWORD}@db:5432/marketpulse
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata-prod:

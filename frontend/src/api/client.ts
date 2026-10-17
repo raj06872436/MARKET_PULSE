@@ -47,12 +47,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    const detail =
+    let detail =
       typeof body?.detail === "string"
         ? body.detail
         : Array.isArray(body?.detail)
           ? body.detail.map((d: { msg?: string }) => d.msg).join("; ")
           : response.statusText;
+    if (typeof body?.request_id === "string") detail += ` (ID ${body.request_id})`;
     if (response.status === 401 && !path.startsWith("/auth/")) window.dispatchEvent(new Event(SIGNED_OUT_EVENT));
     throw new ApiError(response.status, detail);
   }

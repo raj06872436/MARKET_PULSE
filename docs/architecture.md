@@ -31,7 +31,7 @@ Rules applied in the schema:
 - Engagement and coverage fields are nullable. Null means "not available", not zero.
 - `source_connections.credential_ref` points at a secret and never holds one.
 
-## Decisions so far
+## Decisions
 
 - **Accounts own workspaces.** Every data endpoint checks that the workspace behind the requested watchlist, term, alert or forecast belongs to the signed-in user, and answers 404 otherwise. Uploaded files belong to one workspace (`social_records.scope` and `workspace_id`) and only match that workspace's terms; posts from shared sources such as Bluesky are visible to any workspace whose terms they mention. Details in [security.md](security.md).
 - **Tests run on SQLite** for speed. CI also applies the migrations to a real PostgreSQL and runs `alembic check`.
@@ -109,3 +109,9 @@ Insight cards are built from a fact sheet (`app/insights/facts.py`): numbered fa
 Alerts (`app/analytics/alerts.py`) are checked at the end of every analysis run, on each term's latest collected day. Weekly rules need at least 6 of 7 days collected in each window, so an outage can neither fire nor hide an alert. Each rule fires at most once per data day (`alert_events` is unique on alert and data date) and not again until its cooldown passes. Alerts are shown on the Watchlists page only; nothing is sent outside the app.
 
 `GET /api/export/daily.csv` returns daily totals per term and source for a date range. It has no post text or authors, and a day nobody collected gets a `not_collected` row with empty values instead of zeros.
+
+## Deployment
+
+The production image (root `Dockerfile`) builds the frontend and copies it into the backend image. When `STATIC_DIR` is set, FastAPI serves the built files: hashed assets with a long-lived cache header, and `index.html` for any other non-API path so client-side routes work on reload. API paths that don't exist still return a JSON 404. Serving both from one origin means session cookies are first-party and no CORS setup is needed.
+
+`deploy/start.sh` applies migrations and starts uvicorn with one worker, because rate limits and the scheduler are per process. `deploy/smoke.py` checks a running deployment through the API, and CI runs it against the freshly built image with a seeded Postgres. Hosting options, settings, backups and logs: [deployment.md](deployment.md). How far each model and score has been checked: [evaluation/summary.md](evaluation/summary.md).
