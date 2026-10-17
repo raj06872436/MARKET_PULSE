@@ -46,7 +46,7 @@ NEGATIVE = {
     "dim": 0.6, "dims": 0.8, "tint": 0.8, "scratches": 1.0, "damaged": 1.5, "late": 1.2, "delayed": 1.4,
     "pending": 0.8, "cancelled": 1.0, "drops": 0.8, "disconnect": 1.2, "barely": 0.8, "bloatware": 1.4,
     "ads": 1.0, "creaks": 1.2, "inaccurate": 1.2, "used unit": 1.2, "dead": 1.4, "stopped": 1.0,
-    "no reply": 1.4, "not working": 1.6, "doesn't work": 1.6, "can't connect": 1.4, "pricey": 0.6,
+    "no reply": 1.4, "never replied": 1.5, "no response": 1.4, "not working": 1.6, "doesn't work": 1.6, "can't connect": 1.4, "pricey": 0.6,
     "smoothing": 0.6, "paintings": 0.4,
     # hinglish
     "bekaar": 1.8, "bekar": 1.8, "ghatiya": 2.0, "bakwas": 2.0, "kharab": 1.6, "garam": 1.2, "bura": 1.4,
@@ -76,7 +76,8 @@ PROBLEM_CONTEXT = re.compile(
     r"\b(update|battery|heat|cook|crack|drop|ads?|lag|weeks?|days?|hours?|reply|charger|focus|kills?|din)\w*"
 )
 
-TOKEN = re.compile(r"[a-z0-9]+(?:'[a-z]+)?\??|[^\w\s]", re.UNICODE)
+TOKEN = re.compile(r"[a-z0-9_]+(?:'[a-z]+)?\??|[^\w\s]", re.UNICODE)
+CLAUSE_BREAK = {",", ".", "!", "?", ";", ":"}
 LATIN = re.compile(r"[a-z]")
 
 PHRASES = sorted({k for k in (*POSITIVE, *NEGATIVE) if " " in k}, key=len, reverse=True)
@@ -91,7 +92,7 @@ def _softmax(values: list[float]) -> list[float]:
 
 class LexiconSentiment:
     name = "lexicon"
-    version = "lex-1"
+    version = "lex-2"
 
     def _score(self, text: str) -> tuple[float, int, int, list[str]]:
         clean = preprocess(text)
@@ -115,6 +116,11 @@ class LexiconSentiment:
             if value == 0.0:
                 continue
             window = tokens[max(0, i - 3) : i]
+            # Negation and intensifiers don't reach across punctuation: "never replied, terrible".
+            for j in range(len(window) - 1, -1, -1):
+                if window[j] in CLAUSE_BREAK:
+                    window = window[j + 1 :]
+                    break
             if any(w in NEGATORS for w in window):
                 value *= -0.75
             for w in window[-2:]:

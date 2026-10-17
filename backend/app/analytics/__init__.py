@@ -1,1 +1,1 @@
-"""Daily aggregates and trend signals (Weeks 5-6)."""
+"""Daily aggregates, trend signals and the analysis pipeline."""

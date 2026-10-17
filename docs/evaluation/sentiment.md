@@ -1,12 +1,12 @@
 # Sentiment evaluation
 
-Generated 2026-10-17T16:00:51+00:00 by `python -m app.ml.sentiment.evaluate`. Dataset `cef3c926`: 102 train, 34 validation, 34 test examples.
+Generated 2026-10-17T16:12:24+00:00 by `python -m app.ml.sentiment.evaluate`. Dataset `cef3c926`: 102 train, 34 validation, 34 test examples.
 
 ## Results on the held-out test split
 
 | Model | Version | Macro F1 | Accuracy | Calibration error (ECE) | Validation macro F1 |
 | --- | --- | --- | --- | --- | --- |
-| lexicon (selected) | `lex-1` | 0.88 | 0.88 | 0.15 | 0.85 |
+| lexicon (selected) | `lex-2` | 0.88 | 0.88 | 0.15 | 0.85 |
 | tfidf-logreg | `tfidf-1-c1-cef3c926` | 0.39 | 0.38 | 0.07 | 0.53 |
 
 The selected model is chosen by validation macro F1, never by test results. TF-IDF regularization search on validation: {'0.5': 0.5032, '1.0': 0.5299, '2.0': 0.5299, '5.0': 0.5299, '10.0': 0.5299}.

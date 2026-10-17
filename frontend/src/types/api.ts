@@ -71,3 +71,91 @@ export interface CsvImportResult {
   errors: { row: number; column: string | null; message: string }[];
   unknown_columns: string[];
 }
+
+export type Collection = "complete" | "incomplete" | "missing";
+
+export interface SeriesPoint {
+  date: string;
+  collection: Collection;
+  mentions: number | null;
+  engagement: number | null;
+  positive_share: number | null;
+  neutral_share: number | null;
+  negative_share: number | null;
+  scored: number;
+}
+
+export interface EntitySeries {
+  entity_id: string;
+  term: string;
+  entity_type: EntityType;
+  points: SeriesPoint[];
+}
+
+export interface SeriesResponse {
+  start: string;
+  end: string;
+  timezone: string;
+  sources: string[];
+  series: EntitySeries[];
+}
+
+export interface AspectSummary {
+  aspect: string;
+  mentions: number;
+  positive: number;
+  neutral: number;
+  negative: number;
+}
+
+export interface EvidenceRecord {
+  id: string;
+  source: string;
+  published_at: string;
+  text: string | null;
+  url: string | null;
+  sentiment: string | null;
+  confidence: number | null;
+  flags: string[];
+}
+
+export interface Evidence {
+  entity_id: string;
+  start: string;
+  end: string;
+  mentions: number;
+  scored: number;
+  sentiment: Record<"positive" | "neutral" | "negative", number>;
+  aspects: AspectSummary[];
+  phrases: [string, number][];
+  phrases_note: string;
+  examples: EvidenceRecord[];
+}
+
+export interface TrendComponent {
+  value: number | null;
+  weight: number;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface TrendDetails {
+  components: Record<"mention_growth" | "engagement_growth" | "sentiment_shift" | "persistence", TrendComponent>;
+  confidence: "high" | "medium" | "low";
+  coverage: number;
+  window: { start: string; end: string; previous_start: string; previous_end: string };
+  version: string;
+}
+
+export interface TrendCard {
+  entity_id: string;
+  term: string;
+  entity_type: EntityType;
+  competitor_group: string | null;
+  date: string | null;
+  score: number | null;
+  explanation_code: string | null;
+  details: TrendDetails | null;
+  sparkline: SeriesPoint[];
+  evidence: Evidence | null;
+}

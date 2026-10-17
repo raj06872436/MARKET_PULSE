@@ -92,7 +92,7 @@ def test_imported_records_are_scored_once_with_model_version(client, db_session)
     assert results[records["b"]].sentiment == "negative"
     assert results[records["c"]].sentiment == "neutral"
     stored = results[records["a"]]
-    assert (stored.model_name, stored.model_version, stored.preprocessing_version) == ("lexicon", "lex-1", "pre-1")
+    assert (stored.model_name, stored.model_version, stored.preprocessing_version) == ("lexicon", "lex-2", "pre-1")
     assert stored.scores_json and 0 < stored.confidence <= 1
 
     upload(client)
