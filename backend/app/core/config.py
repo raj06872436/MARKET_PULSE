@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     scheduler_enabled: bool = False
     sync_interval_minutes: int = 60
 
+    # "auto" uses whichever model the latest evaluation selected (app/ml/sentiment/evaluation.json).
+    sentiment_model: str = "auto"
+
     csv_max_bytes: int = 10 * 1024 * 1024
     csv_max_rows: int = 50_000
 

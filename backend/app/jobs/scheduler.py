@@ -8,6 +8,7 @@ from app.core.config import get_settings
 from app.db.models import SourceConnection
 from app.db.session import SessionLocal
 from app.jobs.runner import SyncNotAllowed, queue_sync, run_sync
+from app.ml.sentiment.registry import get_model
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def sync_enabled_sources() -> None:
             if created:
                 queued.append(run.id)
     for run_id in queued:
-        run_sync(run_id, SessionLocal, lambda source: build_connector(source, settings))
+        run_sync(run_id, SessionLocal, lambda source: build_connector(source, settings), get_model(settings.sentiment_model))
 
 
 def start_scheduler() -> BackgroundScheduler:
