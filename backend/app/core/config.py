@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +12,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://marketpulse:marketpulse@localhost:5432/marketpulse"
     cors_origins: list[str] = ["http://localhost:5173"]
     log_level: str = "INFO"
+    # Set in the production image: the built frontend is served from here, on the same origin as the API.
+    static_dir: str | None = None
+    db_pool_size: int = 5
 
     # Background scheduling. Off by default so local runs and tests only sync when asked.
     scheduler_enabled: bool = False
@@ -44,6 +48,15 @@ class Settings(BaseSettings):
     bluesky_max_queries: int = 25
     bluesky_max_pages: int = 5
 
+
+    @field_validator("database_url")
+    @classmethod
+    def use_psycopg_driver(cls, value: str) -> str:
+        """Hosted databases hand out postgres:// URLs; SQLAlchemy needs the driver named."""
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value.removeprefix(prefix)
+        return value
 
     @property
     def secure_cookies(self) -> bool:

@@ -1,0 +1,30 @@
+# Render Blueprint: one web service from the Dockerfile plus a managed Postgres database.
+# New > Blueprint in the Render dashboard, pick this repository, then set ALLOW_REGISTRATION=false
+# once your accounts exist. See docs/deployment.md for other hosts.
+services:
+  - type: web
+    name: marketpulse
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: marketpulse-db
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"
+      - key: ALLOW_REGISTRATION
+        value: "true"
+      - key: INSIGHTS_LLM_ENABLED
+        value: "false"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: marketpulse-db
+    plan: basic-256mb
+    databaseName: marketpulse
+    user: marketpulse

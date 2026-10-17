@@ -45,3 +45,34 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+
+  image:
+    # Builds the production image and runs the demo from it against an empty database,
+    # the "clean environment" check from the plan.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: marketpulse
+          POSTGRES_PASSWORD: marketpulse
+          POSTGRES_DB: marketpulse
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U marketpulse" --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t marketpulse .
+      - name: Start the image on an empty database
+        run: |
+          docker run -d --name app --network host -e COOKIE_SECURE=false \
+            -e DATABASE_URL=postgres://marketpulse:marketpulse@localhost:5432/marketpulse marketpulse
+          for i in $(seq 1 60); do curl -sf localhost:8000/api/health && break; sleep 2; done
+          curl -sf localhost:8000/api/health
+      - name: Load the demo and walk the main journey
+        run: |
+          docker exec -e DEMO_PASSWORD=ci-demo-password app python -m app.demo.seed
+          python3 deploy/smoke.py http://localhost:8000 demo@marketpulse.local ci-demo-password
+      - name: Container logs
+        if: always()
+        run: docker logs app 2>&1 | tail -100
