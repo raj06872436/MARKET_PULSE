@@ -11,3 +11,4 @@ APScheduler==3.11.3
 numpy==2.5.3
 scikit-learn==1.9.1
 statsmodels==0.15.0
+anthropic==1.15.0

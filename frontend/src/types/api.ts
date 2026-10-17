@@ -299,3 +299,74 @@ export interface Comparison {
     difference: number;
   }[];
 }
+
+export interface InsightFact {
+  id: string;
+  label: string;
+  value: number | string | null;
+  unit: "" | "percent" | "score" | "posts" | "days";
+}
+
+export interface InsightExample {
+  id: string;
+  entity_alias: string;
+  published_at: string;
+  sentiment: SentimentLabel | null;
+  text: string;
+  url: string | null;
+}
+
+export interface Insight {
+  id: string;
+  watchlist_id: string | null;
+  entity_id: string | null;
+  period_start: string;
+  period_end: string;
+  observation: string;
+  interpretation: string | null;
+  caveat: string | null;
+  suggested_action: string | null;
+  evidence: { facts: InsightFact[]; examples: InsightExample[]; comparison?: { start: string; end: string } };
+  generator: "llm" | "template";
+  model_version: string;
+  generated_at: string;
+}
+
+export interface InsightBatch {
+  generator: "llm" | "template";
+  llm_status: string;
+  llm_available: boolean;
+  rejected: { observation: string; problems: string[] }[];
+  insights: Insight[];
+}
+
+export type AlertMetric = "daily_mentions" | "weekly_change" | "negative_share" | "trend_score";
+
+export interface AlertRule {
+  metric: AlertMetric;
+  threshold: number;
+  min_posts?: number;
+}
+
+export interface Alert {
+  id: string;
+  entity_id: string;
+  term: string;
+  rule: AlertRule;
+  cooldown_minutes: number;
+  active: boolean;
+  last_triggered_at: string | null;
+  created_at: string;
+}
+
+export interface AlertEvent {
+  id: string;
+  alert_id: string;
+  entity_id: string;
+  term: string;
+  triggered_at: string;
+  data_date: string;
+  value: number;
+  threshold: number;
+  message: string;
+}

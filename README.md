@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 7 of the implementation plan are built:
+Weeks 2 to 8 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -23,9 +23,12 @@ Weeks 2 to 7 of the implementation plan are built:
 - Dashboard pages: Overview, Explore (searchable post table), Sentiment (over time, by topic, phrases and examples), Compare (scorecards, share of voice, topic gaps) and Forecasts, plus Watchlists and Sources
 - Shared filters for watchlist, date range and sources, kept in the URL so they carry between pages and can be shared as links
 - Coverage labels on every chart and comparison, and warnings when a source failed or the data is stale
+- Insight cards that state what changed, a cautious possible explanation, a caveat and a next step, each linked to the numbers and posts behind it. Templates write them by default; Claude can write them when enabled, and every number it states is checked against the data first ([how insights work](docs/insights.md))
+- Threshold alerts on daily mentions, weekly change, negative share or trend score, with a cooldown, shown in the app
+- Daily totals export as CSV (counts and shares only, with uncollected days marked)
 - Docker Compose for local development and GitHub Actions CI
 
-Insights, alerts and authentication come in later weeks. See [docs/architecture.md](docs/architecture.md).
+Authentication and deployment come in later weeks. See [docs/architecture.md](docs/architecture.md).
 
 ## Getting data in
 

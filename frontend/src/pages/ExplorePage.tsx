@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { LineSeriesChart, toLineSeries } from "../charts/LineSeriesChart";
 import { seriesColor } from "../charts/palette";
 import { EmptyState } from "../components/EmptyState";
+import { ExportLink } from "../components/ExportLink";
 import { FilterBar } from "../components/FilterBar";
 import { PageHeader } from "../components/PageHeader";
 import { ASPECTS, CoverageLabel, SentimentPill, coverageOf } from "../components/RecordBits";
@@ -74,7 +75,8 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
 
   return (
     <>
-      <PageHeader title="Explore" description="The posts behind every number, filtered by term, source, date, sentiment and topic." />
+      <PageHeader title="Explore" description="The posts behind every number, filtered by term, source, date, sentiment and topic."
+        actions={<ExportLink filters={filters} />} />
       <FilterBar filters={filters} watchlists={watchlists} terms="multi" colorFor={colorFor} />
 
       {!watchlist || watchlist.entities.length === 0 ? (

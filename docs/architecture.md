@@ -19,7 +19,7 @@ Dashboards read precomputed `daily_metrics`, `trend_signals` and `forecast_point
 | Area | Tables |
 | --- | --- |
 | Accounts | `users`, `workspaces`, `audit_events` |
-| Monitoring setup | `watchlists`, `tracked_entities`, `alerts` |
+| Monitoring setup | `watchlists`, `tracked_entities`, `alerts`, `alert_events` |
 | Ingestion | `source_connections`, `ingestion_runs`, `social_records`, `record_matches` |
 | Analytics | `nlp_results`, `daily_metrics`, `trend_signals`, `forecast_runs`, `forecast_points`, `insight_cards` |
 
@@ -96,7 +96,16 @@ Frequent phrases are unreviewed n-grams and are labelled as such. Topic clusteri
 | Sentiment | `/api/entities/{id}/sentiment`, `/api/metrics/series` | What are people responding to? |
 | Compare | `/api/compare`, `/api/metrics/series` | Where does our brand differ? |
 | Forecasts | `/api/forecasts` | How much should I trust this estimate? |
+| Insights | `/api/insights`, `/api/insights/generate` | What should I look at first? |
 
 Filters shared by every page live in the URL (`wl`, `range`, `from`, `to`, `src`), and the navigation carries them from page to page. Preset ranges end on the last collected day from `/api/watchlists/{id}/data-range`, not today, and a banner says so when that day is more than two days old. All dates are UTC days.
 
 Counting rules the pages share: a post that names two terms counts once for each term on Compare and once overall in Explore; topic sentiment is per clause; cells and periods with fewer than 5 scored posts are left blank rather than shown as a percentage of almost nothing.
+
+## Insights, alerts and export
+
+Insight cards are built from a fact sheet (`app/insights/facts.py`): numbered facts per term, such as `t1.mentions` or `t2.negative_share`, for the last 7 collected days and the 7 before, plus a few example posts. Templates (`drafts.py`) always produce cards. When `INSIGHTS_LLM_ENABLED` is set with an API key, Claude writes them instead from the same fact sheet (`llm.py`), and `validate()` drops any card that cites a fact or post that doesn't exist or states a number none of its cited facts support. If the call fails, is declined, or nothing passes, the templates are used. Cards are stored in `insight_cards` with the facts and posts they cite, and regenerating a period replaces its cards. Details: [insights.md](insights.md).
+
+Alerts (`app/analytics/alerts.py`) are checked at the end of every analysis run, on each term's latest collected day. Weekly rules need at least 6 of 7 days collected in each window, so an outage can neither fire nor hide an alert. Each rule fires at most once per data day (`alert_events` is unique on alert and data date) and not again until its cooldown passes. Alerts are shown on the Watchlists page only; nothing is sent outside the app.
+
+`GET /api/export/daily.csv` returns daily totals per term and source for a date range. It has no post text or authors, and a day nobody collected gets a `not_collected` row with empty values instead of zeros.
