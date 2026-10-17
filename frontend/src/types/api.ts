@@ -159,3 +159,49 @@ export interface TrendCard {
   sparkline: SeriesPoint[];
   evidence: Evidence | null;
 }
+
+export interface DataCheck {
+  name: string;
+  passed: boolean;
+  detail: string;
+}
+
+export interface MethodScore {
+  name: string;
+  label: string;
+  kind: "baseline" | "candidate";
+  mae: number | null;
+  rmse: number | null;
+  wape: number | null;
+  n: number;
+  mae_by_horizon: (number | null)[];
+}
+
+export interface ForecastPoint {
+  date: string;
+  predicted: number;
+  lower: number | null;
+  upper: number | null;
+  actual: number | null;
+}
+
+export interface Forecast {
+  id: string;
+  entity_id: string;
+  term: string;
+  status: "ready" | "insufficient_data" | "failed";
+  method: string | null;
+  method_label: string | null;
+  model_version: string;
+  horizon_days: number;
+  training_start: string | null;
+  training_end: string | null;
+  created_at: string;
+  checks: DataCheck[];
+  interval_level: number;
+  interval_coverage: number | null;
+  candidate_beats_baseline: boolean | null;
+  backtest: { origins: string[]; horizon_days: number; methods: MethodScore[] } | null;
+  history: { date: string; mentions: number | null }[];
+  points: ForecastPoint[];
+}
