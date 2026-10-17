@@ -144,16 +144,16 @@ export function ComparePage({ watchlists }: { watchlists: Watchlist[] }) {
                         {data.scorecards.map((c) => {
                           const cell = c.aspects.find((x) => x.aspect === a);
                           if (!cell || cell.mentions < MIN_CELL) {
-                            return <td key={c.entity_id} className="p-1 text-center text-xs text-slate-400">{cell ? `n=${cell.mentions}` : "–"}</td>;
+                            return <td key={c.entity_id} className="p-1 text-center text-xs text-slate-500">{cell ? `n=${cell.mentions}` : "–"}</td>;
                           }
-                          const dark = cell.negative_share > 0.7; // white text only where the fill is dark enough to read it
+                          // Dark text on every fill: it keeps at least 4.9:1 contrast even on the strongest red, white never reaches 4.5:1.
                           return (
                             <td key={c.entity_id} className="p-0.5">
-                              <div className={`rounded px-1.5 py-1 text-center tabular-nums ${dark ? "text-white" : "text-slate-900"}`}
+                              <div className="rounded px-1.5 py-1 text-center tabular-nums text-slate-900"
                                 style={{ background: `rgba(227, 73, 72, ${0.08 + cell.negative_share * 0.85})` }}
                                 title={`${c.term}, ${aspectLabel(a)}: ${pct(cell.negative_share)} negative of ${cell.mentions}`}>
                                 {pct(cell.negative_share)}
-                                <span className={`block text-[11px] ${dark ? "text-white/90" : "text-slate-600"}`}>n={cell.mentions}</span>
+                                <span className="block text-[11px]">n={cell.mentions}</span>
                               </div>
                             </td>
                           );

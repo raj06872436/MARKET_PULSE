@@ -5,6 +5,7 @@ import pytest
 from app.api.routes import sources as sources_route
 from app.connectors.base import ConnectorError, ConnectorHealth, FetchCoverage, NormalizedRecord, SourceConnector
 from app.db.models import IngestionRun, NlpResult, SocialRecord
+from tests.conftest import upload_workspace
 
 
 def record(n: int, text="Redmi Note 14 is great") -> NormalizedRecord:
@@ -163,7 +164,7 @@ def test_disabling_a_source_blocks_sync(client, fake):
 def test_csv_datasets_appear_as_sources(client):
     client.post(
         "/api/imports/csv",
-        data={"dataset": "survey"},
+        data={"dataset": "survey", "workspace_id": upload_workspace(client)},
         files={"file": ("s.csv", b"source_record_id,published_at,text\n1,2026-09-01T00:00:00Z,hi\n", "text/csv")},
     )
     csv_source = next(s for s in client.get("/api/sources").json() if s["source"] == "csv:survey")

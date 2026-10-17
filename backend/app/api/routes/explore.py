@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from app.analytics import explore
 from app.api.routes.metrics import _check_range, _parse_ids
 from app.core.config import Settings, get_settings
-from app.db.models import TrackedEntity, Watchlist
+from app.api.deps import current_user, owned_entity, owned_watchlist
+from app.db.models import User
 from app.db.session import get_db
 from app.ml.sentiment.registry import get_model
 from app.schemas.explore import Comparison, DataRange, RecordPage, SentimentBreakdown
@@ -16,16 +17,9 @@ from app.schemas.explore import Comparison, DataRange, RecordPage, SentimentBrea
 router = APIRouter(tags=["explore"])
 
 
-def _watchlist(db: Session, watchlist_id: uuid.UUID) -> Watchlist:
-    watchlist = db.get(Watchlist, watchlist_id)
-    if watchlist is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Watchlist not found")
-    return watchlist
-
-
 @router.get("/watchlists/{watchlist_id}/data-range", response_model=DataRange)
-def data_range(watchlist_id: uuid.UUID, db: Session = Depends(get_db)) -> DataRange:
-    return explore.data_range(db, _watchlist(db, watchlist_id))
+def data_range(watchlist_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(current_user)) -> DataRange:
+    return explore.data_range(db, owned_watchlist(db, user, watchlist_id))
 
 
 @router.get("/records", response_model=RecordPage)
@@ -43,9 +37,10 @@ def records(
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> RecordPage:
     _check_range(start, end)
-    watchlist = _watchlist(db, watchlist_id)
+    watchlist = owned_watchlist(db, user, watchlist_id)
     allowed = {e.id for e in watchlist.entities}
     ids = _parse_ids(entity_ids) if entity_ids else list(allowed)
     if stray := [str(i) for i in ids if i not in allowed]:
@@ -66,11 +61,10 @@ def sentiment(
     source: list[str] | None = Query(None),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> SentimentBreakdown:
     _check_range(start, end)
-    entity = db.get(TrackedEntity, entity_id)
-    if entity is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Entity not found")
+    entity = owned_entity(db, user, entity_id)
     return explore.sentiment_breakdown(db, entity, start, end, get_model(settings.sentiment_model), source)
 
 
@@ -82,6 +76,7 @@ def compare(
     source: list[str] | None = Query(None),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> Comparison:
     _check_range(start, end)
-    return explore.compare(db, _watchlist(db, watchlist_id), start, end, get_model(settings.sentiment_model), source)
+    return explore.compare(db, owned_watchlist(db, user, watchlist_id), start, end, get_model(settings.sentiment_model), source)

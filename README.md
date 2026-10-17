@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 8 of the implementation plan are built:
+Weeks 2 to 9 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -26,9 +26,12 @@ Weeks 2 to 8 of the implementation plan are built:
 - Insight cards that state what changed, a cautious possible explanation, a caveat and a next step, each linked to the numbers and posts behind it. Templates write them by default; Claude can write them when enabled, and every number it states is checked against the data first ([how insights work](docs/insights.md))
 - Threshold alerts on daily mentions, weekly change, negative share or trend score, with a cooldown, shown in the app
 - Daily totals export as CSV (counts and shares only, with uncollected days marked)
+- Accounts with sign-in, private workspaces, and server-side checks on every endpoint so one account never sees another's watchlists, uploads or results ([security notes](docs/security.md))
+- Rate limits on sign-in and expensive endpoints, safe error messages with a request ID, security headers and redacted logs
+- Accessibility: keyboard skip link, labelled controls, text summaries for every chart, and a clean automated WCAG 2 AA check on every page
 - Docker Compose for local development and GitHub Actions CI
 
-Authentication and deployment come in later weeks. See [docs/architecture.md](docs/architecture.md).
+Deployment comes in week 10. See [docs/architecture.md](docs/architecture.md).
 
 ## Getting data in
 
@@ -44,10 +47,10 @@ To see every chart without collecting anything, load the synthetic demo. It crea
 
 ```bash
 cd backend
-python -m app.demo.seed --end 2026-10-17
+DEMO_PASSWORD='choose-a-password' python -m app.demo.seed --end 2026-10-17
 ```
 
-Everything it writes is fictional and links point at example.com. Add `--csv-out ../data_samples` to also save the two CSVs.
+Sign in as `demo@marketpulse.local` with that password. Without `DEMO_PASSWORD` the script makes up a password and prints it once. If the demo account is the first account, it is the admin. Everything it writes is fictional and links point at example.com. Add `--csv-out ../data_samples` to also save the two CSVs.
 
 To check that the dashboard numbers match the raw records for a date range:
 
@@ -68,7 +71,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open http://localhost:5173. The API runs on http://localhost:8000 and its docs on http://localhost:8000/docs. Migrations run automatically when the backend starts.
+Open http://localhost:5173 and create an account; the first account becomes the admin, who can connect shared sources. The API runs on http://localhost:8000 and its docs on http://localhost:8000/docs. Migrations run automatically when the backend starts.
 
 ## Run without Docker
 

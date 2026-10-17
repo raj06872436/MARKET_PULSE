@@ -1,4 +1,5 @@
 from app.db.models import RecordMatch, SocialRecord
+from tests.conftest import upload_workspace
 
 HEADER = "source_record_id,published_at,text,url,language,likes,comments,shares,views\n"
 ROWS = (
@@ -12,7 +13,7 @@ ROWS = (
 def upload(client, body: str, dataset="phones-sample", timezone="UTC", filename="data.csv"):
     return client.post(
         "/api/imports/csv",
-        data={"dataset": dataset, "timezone": timezone},
+        data={"dataset": dataset, "timezone": timezone, "workspace_id": upload_workspace(client)},
         files={"file": (filename, body.encode(), "text/csv")},
     )
 
@@ -92,7 +93,7 @@ def test_file_level_problems_are_refused(client):
     assert upload(client, HEADER + ROWS, timezone="Mars/Olympus").status_code == 422
     response = client.post(
         "/api/imports/csv",
-        data={"dataset": "latin1"},
+        data={"dataset": "latin1", "workspace_id": upload_workspace(client)},
         files={"file": ("x.csv", "source_record_id,published_at,text\n1,2026-09-01,café\n".encode("latin-1"), "text/csv")},
     )
     assert response.status_code == 422

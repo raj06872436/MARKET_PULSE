@@ -88,7 +88,7 @@ export function FilterBar({ filters, watchlists, terms, colorFor }: Props) {
               const on = filters.sources.length === 0 || filters.sources.includes(s);
               return (
                 <button key={s} onClick={() => toggleSource(s)} aria-pressed={on}
-                  className={`rounded-full border px-2.5 py-0.5 ${on ? "border-slate-400 bg-slate-100 text-slate-800" : "border-slate-200 text-slate-400 line-through"}`}>
+                  className={`rounded-full border px-2.5 py-0.5 ${on ? "border-slate-400 bg-slate-100 text-slate-800" : "border-slate-200 text-slate-500 line-through"}`}>
                   {s}
                 </button>
               );
