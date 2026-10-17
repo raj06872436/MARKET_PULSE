@@ -39,6 +39,7 @@ class AnalysisSummary:
     aspects_retagged: int
     daily_metric_rows: int
     trend_signal_rows: int
+    forecasts_created: int = 0
 
 
 def utc_date(value: datetime) -> date:
@@ -245,6 +246,9 @@ def run_analysis(db: Session, model: SentimentModel) -> AnalysisSummary:
     retagged = tag_stale_aspects(db, model)
     metrics = rebuild_daily_metrics(db, model)
     signals = rebuild_trend_signals(db)
-    summary = AnalysisSummary(new_matches, scored, retagged, metrics, signals)
+    from app.ml.forecasting.service import refresh_forecasts  # imports this module
+
+    forecasts = refresh_forecasts(db)
+    summary = AnalysisSummary(new_matches, scored, retagged, metrics, signals, forecasts)
     logger.info("Analysis finished: %s", summary)
     return summary
