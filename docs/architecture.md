@@ -35,4 +35,21 @@ Rules applied in the schema:
 
 - **No authentication yet.** `workspaces.owner_user_id` is nullable, and the frontend uses the first workspace or creates one. Auth arrives before any multi-user deployment.
 - **Tests run on SQLite** for speed. CI also applies the migrations to a real PostgreSQL and runs `alembic check`.
-- **Connectors are not chosen yet.** That depends on the Week 1 source feasibility check. `app/connectors/base.py` defines the interface every connector has to implement.
+- **Bluesky is the first connector** because the plan rates it the most accessible. It uses `app.bsky.feed.searchPosts` on the public API and can sign in with an app password if unauthenticated search is refused. Each new connector implements `SourceConnector` in `app/connectors/base.py` and is registered in `app/connectors/registry.py`.
+- **Syncing requires a recorded terms review.** A source can't be enabled until someone confirms they checked its terms; the date and notes are stored in `source_connections`.
+
+## Ingestion
+
+```
+CSV upload ─┐
+            ├─> NormalizedRecord ─> dedupe on (source, source_record_id) ─> social_records
+connector ──┘                                                            └─> record_matches (whole-word match on terms and variants of active watchlists)
+```
+
+- Every import or sync is an `ingestion_runs` row: `queued → running → succeeded | partial | failed`, with fetched, new, duplicate, rejected and matched counts.
+- `partial` means data arrived but coverage is incomplete: rows were rejected, or a query hit the page or query limit. `coverage_json` says which.
+- A connector failure stores the error code and a sanitized message and keeps every record that arrived before it. Source health then shows **Failed** rather than a quiet zero.
+- Incremental syncs ask for posts since the last successful run, minus one hour of overlap. Failed runs don't move that window, and dedupe absorbs the overlap.
+- Manual syncs run as FastAPI background tasks. The optional APScheduler job (`SCHEDULER_ENABLED`) syncs every enabled source on an interval. Move to Celery + Redis if retries or concurrency need it.
+- CSV sources are named `csv:<dataset>`, so identical IDs in two datasets stay separate.
+- New watchlist terms only match records ingested after they were added. Backfilling matches for older records is planned alongside the daily aggregates.
