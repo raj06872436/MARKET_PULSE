@@ -15,3 +15,8 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+def get_session_factory() -> sessionmaker:
+    """Background jobs open their own sessions; this dependency lets tests point them at the test DB."""
+    return SessionLocal

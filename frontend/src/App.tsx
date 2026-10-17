@@ -5,6 +5,7 @@ import { api } from "./api/client";
 import { Layout } from "./components/Layout";
 import { OverviewPage } from "./pages/OverviewPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { SourcesPage } from "./pages/SourcesPage";
 import { WatchlistsPage } from "./pages/WatchlistsPage";
 import type { Watchlist, Workspace } from "./types/api";
 
@@ -89,16 +90,7 @@ export default function App() {
             />
           }
         />
-        <Route
-          path="/sources"
-          element={
-            <PlaceholderPage
-              title="Sources"
-              description="Connector status, last successful sync and quota for each approved source."
-              note="The CSV importer and first connector are planned for week 3, after the source feasibility check."
-            />
-          }
-        />
+        <Route path="/sources" element={<SourcesPage />} />
       </Routes>
     </Layout>
   );
