@@ -4,12 +4,13 @@ from datetime import date, timedelta
 from app.analytics import trend
 from app.db.models import DailyMetric, NlpResult, RecordMatch, TrendSignal
 from app.demo.synthetic import GAP, generate
+from tests.conftest import upload_workspace
 
 HEADER = "source_record_id,published_at,text,likes,comments\n"
 
 
 def upload(client, dataset: str, body: str):
-    response = client.post("/api/imports/csv", data={"dataset": dataset}, files={"file": ("d.csv", (HEADER + body).encode(), "text/csv")})
+    response = client.post("/api/imports/csv", data={"dataset": dataset, "workspace_id": upload_workspace(client)}, files={"file": ("d.csv", (HEADER + body).encode(), "text/csv")})
     assert response.status_code == 201, response.text
     return response.json()
 

@@ -18,7 +18,7 @@ Dashboards read precomputed `daily_metrics`, `trend_signals` and `forecast_point
 
 | Area | Tables |
 | --- | --- |
-| Accounts | `users`, `workspaces`, `audit_events` |
+| Accounts | `users`, `user_sessions`, `workspaces`, `audit_events` |
 | Monitoring setup | `watchlists`, `tracked_entities`, `alerts`, `alert_events` |
 | Ingestion | `source_connections`, `ingestion_runs`, `social_records`, `record_matches` |
 | Analytics | `nlp_results`, `daily_metrics`, `trend_signals`, `forecast_runs`, `forecast_points`, `insight_cards` |
@@ -33,7 +33,7 @@ Rules applied in the schema:
 
 ## Decisions so far
 
-- **No authentication yet.** `workspaces.owner_user_id` is nullable, and the frontend uses the first workspace or creates one. Auth arrives before any multi-user deployment.
+- **Accounts own workspaces.** Every data endpoint checks that the workspace behind the requested watchlist, term, alert or forecast belongs to the signed-in user, and answers 404 otherwise. Uploaded files belong to one workspace (`social_records.scope` and `workspace_id`) and only match that workspace's terms; posts from shared sources such as Bluesky are visible to any workspace whose terms they mention. Details in [security.md](security.md).
 - **Tests run on SQLite** for speed. CI also applies the migrations to a real PostgreSQL and runs `alembic check`.
 - **Bluesky is the first connector** because the plan rates it the most accessible. It uses `app.bsky.feed.searchPosts` on the public API and can sign in with an app password if unauthenticated search is refused. Each new connector implements `SourceConnector` in `app/connectors/base.py` and is registered in `app/connectors/registry.py`.
 - **Syncing requires a recorded terms review.** A source can't be enabled until someone confirms they checked its terms; the date and notes are stored in `source_connections`.

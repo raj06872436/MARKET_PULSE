@@ -1,10 +1,14 @@
 from datetime import UTC, datetime
 
+import uuid
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
+from app.api.deps import current_user, owned_workspace
+from app.core import ratelimit
 from app.core.config import Settings, get_settings
-from app.db.models import IngestionRun
+from app.db.models import IngestionRun, User
 from app.db.session import get_db
 from app.ingestion.csv_import import CsvFormatError, parse_csv, parse_timezone, source_name
 from app.ingestion.matching import build_matchers
@@ -19,11 +23,15 @@ router = APIRouter(prefix="/imports", tags=["imports"])
 @router.post("/csv", response_model=CsvImportResult, status_code=status.HTTP_201_CREATED)
 async def import_csv(
     file: UploadFile = File(...),
+    workspace_id: uuid.UUID = Form(..., description="The workspace the data belongs to; only its terms are matched"),
     dataset: str = Form(..., description="Short name for where this data came from, e.g. 'survey-2026'"),
     timezone: str = Form("UTC", description="Timezone for timestamps that have no offset"),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> CsvImportResult:
+    workspace = owned_workspace(db, user, workspace_id)
+    ratelimit.enforce(ratelimit.IMPORT, str(user.id))
     raw = await file.read(settings.csv_max_bytes + 1)
     if len(raw) > settings.csv_max_bytes:
         raise HTTPException(status.HTTP_413_CONTENT_TOO_LARGE, f"File is larger than {settings.csv_max_bytes // 1_000_000} MB")
@@ -33,10 +41,10 @@ async def import_csv(
     except CsvFormatError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from None
 
-    run = IngestionRun(source=source, trigger="csv", status="running", started_at=datetime.now(UTC))
+    run = IngestionRun(source=source, trigger="csv", status="running", started_at=datetime.now(UTC), workspace_id=workspace.id)
     db.add(run)
     db.commit()
-    ingest_records(db, parsed.records, run, build_matchers(db))
+    ingest_records(db, parsed.records, run, build_matchers(db, workspace.id))
     run.rejected_count = parsed.rejected
     run.fetched_count = (run.fetched_count or 0) + parsed.rejected
     run.inserted_count = run.inserted_count or 0

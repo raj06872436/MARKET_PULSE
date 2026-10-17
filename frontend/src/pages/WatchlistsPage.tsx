@@ -123,13 +123,13 @@ function WatchlistCard({ watchlist, run }: { watchlist: Watchlist; run: (a: () =
         <ul className="mb-3 flex flex-wrap gap-2">
           {watchlist.entities.map((e) => (
             <li key={e.id} className="flex items-center gap-2 rounded-md bg-slate-100 px-2 py-1 text-sm">
-              <span className="text-xs uppercase text-slate-500">{e.entity_type}</span>
+              <span className="text-xs uppercase text-slate-600">{e.entity_type}</span>
               <span>{e.term}</span>
-              {e.variants.length > 0 && <span className="text-slate-500">+{e.variants.length} variants</span>}
+              {e.variants.length > 0 && <span className="text-slate-600">+{e.variants.length} {e.variants.length === 1 ? "variant" : "variants"}</span>}
               <button
                 onClick={() => run(() => api.deleteEntity(watchlist.id, e.id))}
                 aria-label={`Remove ${e.term}`}
-                className="text-slate-400 hover:text-red-600"
+                className="text-slate-600 hover:text-red-700"
               >
                 ×
               </button>

@@ -58,7 +58,8 @@ export function LineSeriesChart({ series, value, format = (v) => v.toLocaleStrin
   const spans = missingSpans(dates, series);
 
   return (
-    <div style={{ height }} className="w-full">
+    <figure style={{ height }} className="w-full">
+      <figcaption className="sr-only">{describeLines(series, value, format)}</figcaption>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 136, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={GRID} vertical={false} />
@@ -125,8 +126,24 @@ export function LineSeriesChart({ series, value, format = (v) => v.toLocaleStrin
           {series.length <= 4 && <EndLabels rows={rows} series={series} />}
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </figure>
   );
+}
+
+/** A text version of the chart for screen readers: range, then each series' latest value and peak. */
+function describeLines(series: LineSeries[], value: (p: SeriesPoint) => number | null, format: (v: number) => string): string {
+  const dates = series[0]?.points.map((p) => p.date) ?? [];
+  if (!dates.length) return "No data.";
+  const parts = series.map((s) => {
+    const known = s.points.map((p) => ({ date: p.date, v: value(p) })).filter((x): x is { date: string; v: number } => x.v !== null);
+    if (!known.length) return `${s.label}: no data`;
+    const peak = known.reduce((a, b) => (b.v > a.v ? b : a));
+    const latest = known.at(-1)!;
+    return `${s.label}: ${format(latest.v)} on ${shortDate(latest.date)}, highest ${format(peak.v)} on ${shortDate(peak.date)}`;
+  });
+  const missing = series[0].points.filter((p) => p.collection === "missing").length;
+  return `Daily values from ${shortDate(dates[0])} to ${shortDate(dates.at(-1)!)} (UTC). ${parts.join(". ")}.` +
+    (missing ? ` ${missing} days were not collected.` : "");
 }
 
 const LABEL_GAP = 14;

@@ -10,7 +10,7 @@ import type { CsvImportResult, IngestionRun, Source } from "../types/api";
 
 const POLL_MS = 1500;
 
-export function SourcesPage() {
+export function SourcesPage({ workspaceId, isAdmin }: { workspaceId: string; isAdmin: boolean }) {
   const [sources, setSources] = useState<Source[] | null>(null);
   const [runs, setRuns] = useState<IngestionRun[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -59,12 +59,12 @@ export function SourcesPage() {
       <h2 className="mb-2 text-sm font-medium text-slate-600">Connected platforms</h2>
       <div className="mb-8 space-y-4">
         {apiSources.map((s) => (
-          <ApiSourceCard key={s.source} source={s} act={act} />
+          <ApiSourceCard key={s.source} source={s} act={act} isAdmin={isAdmin} />
         ))}
       </div>
 
       <h2 className="mb-2 text-sm font-medium text-slate-600">CSV uploads</h2>
-      <CsvUpload onDone={() => refresh().catch(() => undefined)} />
+      <CsvUpload workspaceId={workspaceId} onDone={() => refresh().catch(() => undefined)} />
       {csvSources.length > 0 && (
         <div className="mt-4 space-y-3">
           {csvSources.map((s) => (
@@ -109,7 +109,9 @@ function SourceSummary({ source }: { source: Source }) {
   );
 }
 
-function ApiSourceCard({ source, act }: { source: Source; act: (a: () => Promise<unknown>) => Promise<void> }) {
+function ApiSourceCard({ source, act, isAdmin }: {
+  source: Source; act: (a: () => Promise<unknown>) => Promise<void>; isAdmin: boolean;
+}) {
   const [confirmed, setConfirmed] = useState(false);
   const [notes, setNotes] = useState("");
   const reviewed = source.policy_reviewed_at !== null;
@@ -138,13 +140,17 @@ function ApiSourceCard({ source, act }: { source: Source; act: (a: () => Promise
             >
               {source.status === "running" ? "Syncing…" : "Sync now"}
             </button>
-            <button
-              onClick={() => act(() => api.updateSource(source.source, { enabled: false }))}
-              className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-50"
-            >
-              Disconnect
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => act(() => api.updateSource(source.source, { enabled: false }))}
+                className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-50"
+              >
+                Disconnect
+              </button>
+            )}
           </div>
+        ) : !isAdmin ? (
+          <p className="text-slate-600">Platforms are shared by every workspace, so an admin connects them.</p>
         ) : (
           <div className="space-y-2">
             <label className="flex items-start gap-2">
@@ -181,7 +187,7 @@ function ApiSourceCard({ source, act }: { source: Source; act: (a: () => Promise
   );
 }
 
-function CsvUpload({ onDone }: { onDone: () => void }) {
+function CsvUpload({ workspaceId, onDone }: { workspaceId: string; onDone: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [dataset, setDataset] = useState("");
   const [timezone, setTimezone] = useState("UTC");
@@ -196,7 +202,7 @@ function CsvUpload({ onDone }: { onDone: () => void }) {
     setError(null);
     setResult(null);
     try {
-      setResult(await api.importCsv(file, dataset.trim(), timezone.trim() || "UTC"));
+      setResult(await api.importCsv(workspaceId, file, dataset.trim(), timezone.trim() || "UTC"));
       invalidateDataRanges();
       onDone();
     } catch (e) {
