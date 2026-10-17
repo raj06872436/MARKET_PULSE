@@ -8,7 +8,8 @@ from app.analytics.pipeline import run_analysis
 from app.core.config import Settings, get_settings
 from app.ml.sentiment.registry import get_model
 
-from app.db.models import TrackedEntity, Watchlist, Workspace
+from app.api.deps import current_user, owned_watchlist, owned_workspace, workspace_ids
+from app.db.models import TrackedEntity, User, Watchlist
 from app.db.session import get_db, get_session_factory
 from app.schemas.watchlist import (
     TrackedEntityCreate,
@@ -28,50 +29,49 @@ def _reanalyze(session_factory: sessionmaker, model_name: str) -> None:
         run_analysis(db, get_model(model_name))
 
 
-def _get_watchlist(db: Session, watchlist_id: uuid.UUID) -> Watchlist:
-    watchlist = db.scalar(
-        select(Watchlist).where(Watchlist.id == watchlist_id).options(selectinload(Watchlist.entities))
-    )
-    if watchlist is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Watchlist not found")
-    return watchlist
+def _get_watchlist(db: Session, user: User, watchlist_id: uuid.UUID) -> Watchlist:
+    return owned_watchlist(db, user, watchlist_id)
 
 
 @router.post("", response_model=WatchlistRead, status_code=status.HTTP_201_CREATED)
-def create_watchlist(body: WatchlistCreate, db: Session = Depends(get_db)) -> Watchlist:
-    if db.get(Workspace, body.workspace_id) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Workspace not found")
+def create_watchlist(body: WatchlistCreate, db: Session = Depends(get_db), user: User = Depends(current_user)) -> Watchlist:
+    owned_workspace(db, user, body.workspace_id)
     watchlist = Watchlist(workspace_id=body.workspace_id, name=body.name, language=body.language)
     db.add(watchlist)
     db.commit()
-    return _get_watchlist(db, watchlist.id)
+    return _get_watchlist(db, user, watchlist.id)
 
 
 @router.get("", response_model=list[WatchlistRead])
-def list_watchlists(workspace_id: uuid.UUID | None = None, db: Session = Depends(get_db)) -> list[Watchlist]:
-    query = select(Watchlist).options(selectinload(Watchlist.entities)).order_by(Watchlist.created_at)
+def list_watchlists(
+    workspace_id: uuid.UUID | None = None, db: Session = Depends(get_db), user: User = Depends(current_user)
+) -> list[Watchlist]:
+    query = (select(Watchlist).options(selectinload(Watchlist.entities))
+             .where(Watchlist.workspace_id.in_(workspace_ids(db, user))).order_by(Watchlist.created_at))
     if workspace_id is not None:
         query = query.where(Watchlist.workspace_id == workspace_id)
     return list(db.scalars(query))
 
 
 @router.get("/{watchlist_id}", response_model=WatchlistRead)
-def get_watchlist(watchlist_id: uuid.UUID, db: Session = Depends(get_db)) -> Watchlist:
-    return _get_watchlist(db, watchlist_id)
+def get_watchlist(watchlist_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(current_user)) -> Watchlist:
+    return _get_watchlist(db, user, watchlist_id)
 
 
 @router.patch("/{watchlist_id}", response_model=WatchlistRead)
-def update_watchlist(watchlist_id: uuid.UUID, body: WatchlistUpdate, db: Session = Depends(get_db)) -> Watchlist:
-    watchlist = _get_watchlist(db, watchlist_id)
+def update_watchlist(
+    watchlist_id: uuid.UUID, body: WatchlistUpdate, db: Session = Depends(get_db), user: User = Depends(current_user)
+) -> Watchlist:
+    watchlist = _get_watchlist(db, user, watchlist_id)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(watchlist, field, value)
     db.commit()
-    return _get_watchlist(db, watchlist_id)
+    return _get_watchlist(db, user, watchlist_id)
 
 
 @router.delete("/{watchlist_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_watchlist(watchlist_id: uuid.UUID, db: Session = Depends(get_db)) -> Response:
-    db.delete(_get_watchlist(db, watchlist_id))
+def delete_watchlist(watchlist_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(current_user)) -> Response:
+    db.delete(_get_watchlist(db, user, watchlist_id))
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -84,8 +84,9 @@ def add_entity(
     db: Session = Depends(get_db),
     session_factory: sessionmaker = Depends(get_session_factory),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> TrackedEntity:
-    watchlist = _get_watchlist(db, watchlist_id)
+    watchlist = _get_watchlist(db, user, watchlist_id)
     normalized = normalize_term(body.term)
     if any(entity.normalized_term == normalized for entity in watchlist.entities):
         raise HTTPException(status.HTTP_409_CONFLICT, f"'{body.term}' is already tracked in this watchlist")
@@ -104,7 +105,10 @@ def add_entity(
 
 
 @router.delete("/{watchlist_id}/entities/{entity_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_entity(watchlist_id: uuid.UUID, entity_id: uuid.UUID, db: Session = Depends(get_db)) -> Response:
+def delete_entity(
+    watchlist_id: uuid.UUID, entity_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(current_user)
+) -> Response:
+    _get_watchlist(db, user, watchlist_id)
     entity = db.get(TrackedEntity, entity_id)
     if entity is None or entity.watchlist_id != watchlist_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Entity not found")

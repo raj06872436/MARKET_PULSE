@@ -1,5 +1,12 @@
 export type EntityType = "brand" | "product" | "keyword" | "hashtag" | "competitor";
 
+export interface User {
+  id: string;
+  email: string;
+  role: "admin" | "member";
+  created_at: string;
+}
+
 export interface Workspace {
   id: string;
   name: string;

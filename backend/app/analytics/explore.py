@@ -96,16 +96,21 @@ def search_records(
         query = query.where(or_(NlpResult.sentiment.is_(None), NlpResult.record_id.is_(None)))
     elif sentiment:
         query = query.where(NlpResult.sentiment == sentiment)
-    rows = db.execute(query).all()
+    # Filter and sort on a few light columns first, then load full posts for the requested page only.
+    light = db.execute(query.with_only_columns(
+        SocialRecord.id, SocialRecord.published_at, SocialRecord.engagement_json, NlpResult.aspects_json
+    )).all()
     if aspect:
         # Aspects live in JSON; filter in Python so SQLite and Postgres behave the same.
-        rows = [(r, n) for r, n in rows if n and any(i["aspect"] == aspect for i in (n.aspects_json or {}).get("items", []))]
+        light = [row for row in light if any(i["aspect"] == aspect for i in (row.aspects_json or {}).get("items", []))]
     if sort == "engagement":
-        rows.sort(key=lambda rn: (engagement_total(rn[0].engagement_json) is None, -(engagement_total(rn[0].engagement_json) or 0)))
+        light.sort(key=lambda row: (engagement_total(row.engagement_json) is None, -(engagement_total(row.engagement_json) or 0)))
     else:
-        rows.sort(key=lambda rn: rn[0].published_at, reverse=sort != "oldest")
-    total = len(rows)
-    page = rows[offset : offset + limit]
+        light.sort(key=lambda row: row.published_at, reverse=sort != "oldest")
+    total = len(light)
+    page_ids = [row.id for row in light[offset : offset + limit]]
+    loaded = {r.id: (r, n) for r, n in db.execute(query.where(SocialRecord.id.in_(page_ids))).all()} if page_ids else {}
+    page = [loaded[i] for i in page_ids]
 
     terms: dict[uuid.UUID, list[str]] = defaultdict(list)
     if page:
@@ -207,8 +212,11 @@ def compare(
     seen_sources: set[str] = set()
     if ids:
         lo, hi = day_bounds(start, end)
+        # Plain columns rather than ORM objects: this scans every post in the range, and building
+        # full objects (with post text) was most of the time on a 90-day range.
         query = (
-            select(RecordMatch.tracked_entity_id, SocialRecord, NlpResult)
+            select(RecordMatch.tracked_entity_id, SocialRecord.source, SocialRecord.engagement_json,
+                   NlpResult.sentiment, NlpResult.aspects_json)
             .join(SocialRecord, SocialRecord.id == RecordMatch.record_id)
             .outerjoin(
                 NlpResult,
@@ -220,16 +228,16 @@ def compare(
         )
         if sources:
             query = query.where(SocialRecord.source.in_(sources))
-        for entity_id, r, n in db.execute(query):
+        for entity_id, source, engagement, sentiment, aspects in db.execute(query):
             s = stats[entity_id]
             s["mentions"] += 1
-            seen_sources.add(r.source)
-            if (e := engagement_total(r.engagement_json)) is not None:
+            seen_sources.add(source)
+            if (e := engagement_total(engagement)) is not None:
                 s["eng"] += e
                 s["eng_n"] += 1
-            if n and n.sentiment:
-                s["counts"][n.sentiment] += 1
-                for item in (n.aspects_json or {}).get("items", []):
+            if sentiment:
+                s["counts"][sentiment] += 1
+                for item in (aspects or {}).get("items", []):
                     s["aspects"][item["aspect"]][item["sentiment"]] += 1
 
     collected: dict[uuid.UUID, set[date]] = defaultdict(set)

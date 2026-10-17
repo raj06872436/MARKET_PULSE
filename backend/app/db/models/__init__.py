@@ -1,6 +1,6 @@
 """Import every model so Base.metadata is complete for Alembic and tests."""
 
-from app.db.models.account import AuditEvent, User, Workspace
+from app.db.models.account import AuditEvent, User, UserSession, Workspace
 from app.db.models.analytics import (
     DailyMetric,
     ForecastPoint,
@@ -29,6 +29,7 @@ __all__ = [
     "SourceConnection",
     "TrackedEntity",
     "User",
+    "UserSession",
     "Watchlist",
     "Workspace",
 ]

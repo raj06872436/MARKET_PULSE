@@ -14,12 +14,16 @@ import type {
   SeriesResponse,
   TrendCard,
   IngestionRun,
+  User,
   Source,
   TrackedEntity,
   TrackedEntityCreate,
   Watchlist,
   Workspace,
 } from "../types/api";
+
+/** Fired when the API says the session has ended, so the app can show the sign-in screen. */
+export const SIGNED_OUT_EVENT = "marketpulse:signed-out";
 
 export class ApiError extends Error {
   constructor(
@@ -32,10 +36,15 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isForm = init?.body instanceof FormData;
-  const response = await fetch(`/api${path}`, {
-    headers: isForm ? undefined : { "Content-Type": "application/json" },
-    ...init,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`/api${path}`, {
+      headers: isForm ? undefined : { "Content-Type": "application/json" },
+      ...init,
+    });
+  } catch {
+    throw new ApiError(0, "Can't reach the MarketPulse server. Check your connection and try again.");
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     const detail =
@@ -44,12 +53,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         : Array.isArray(body?.detail)
           ? body.detail.map((d: { msg?: string }) => d.msg).join("; ")
           : response.statusText;
+    if (response.status === 401 && !path.startsWith("/auth/")) window.dispatchEvent(new Event(SIGNED_OUT_EVENT));
     throw new ApiError(response.status, detail);
   }
   return response.status === 204 ? (undefined as T) : response.json();
 }
 
 export const api = {
+  me: () => request<User>("/auth/me"),
+  login: (email: string, password: string) =>
+    request<User>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+  register: (email: string, password: string) =>
+    request<User>("/auth/register", { method: "POST", body: JSON.stringify({ email, password }) }),
+  logout: () => request<void>("/auth/logout", { method: "POST" }),
+  deleteAccount: () => request<void>("/auth/me", { method: "DELETE" }),
+
   listWorkspaces: () => request<Workspace[]>("/workspaces"),
   createWorkspace: (name: string) =>
     request<Workspace>("/workspaces", { method: "POST", body: JSON.stringify({ name }) }),
@@ -128,8 +146,9 @@ export const api = {
   updateAlert: (id: string, patch: { active?: boolean }) =>
     request<Alert>(`/alerts/${id}`, { method: "PATCH", body: JSON.stringify(patch) }),
   deleteAlert: (id: string) => request<void>(`/alerts/${id}`, { method: "DELETE" }),
-  importCsv: (file: File, dataset: string, timezone: string) => {
+  importCsv: (workspaceId: string, file: File, dataset: string, timezone: string) => {
     const form = new FormData();
+    form.append("workspace_id", workspaceId);
     form.append("file", file);
     form.append("dataset", dataset);
     form.append("timezone", timezone);

@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import ForecastPoint, ForecastRun, TrackedEntity, Watchlist
+from app.api.deps import current_user, owned_entity, owned_forecast, owned_watchlist
+from app.core import ratelimit
+from app.db.models import ForecastPoint, ForecastRun, TrackedEntity, User
 from app.db.session import get_db
 from app.ml.forecasting.models import METHODS
 from app.ml.forecasting.service import build_series, create_forecast, latest_run
@@ -71,27 +73,23 @@ def to_out(db: Session, run: ForecastRun) -> ForecastOut:
 
 
 @router.post("", response_model=ForecastOut, status_code=status.HTTP_201_CREATED)
-def create(payload: ForecastCreate, db: Session = Depends(get_db)) -> ForecastOut:
-    entity = db.get(TrackedEntity, payload.entity_id)
-    if entity is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Tracked term not found")
+def create(payload: ForecastCreate, db: Session = Depends(get_db), user: User = Depends(current_user)) -> ForecastOut:
+    entity = owned_entity(db, user, payload.entity_id, "Tracked term")
+    ratelimit.enforce(ratelimit.FORECAST, str(user.id))
     run = create_forecast(db, entity, payload.horizon_days)
     return to_out(db, run)
 
 
 @router.get("", response_model=list[ForecastOut])
-def latest_for_watchlist(watchlist_id: uuid.UUID = Query(...), db: Session = Depends(get_db)) -> list[ForecastOut]:
+def latest_for_watchlist(
+    watchlist_id: uuid.UUID = Query(...), db: Session = Depends(get_db), user: User = Depends(current_user)
+) -> list[ForecastOut]:
     """The newest forecast for each term in a watchlist. Terms never forecast are left out."""
-    watchlist = db.get(Watchlist, watchlist_id)
-    if watchlist is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Watchlist not found")
+    watchlist = owned_watchlist(db, user, watchlist_id)
     runs = [latest_run(db, e.id) for e in watchlist.entities]
     return [to_out(db, r) for r in runs if r is not None]
 
 
 @router.get("/{forecast_id}", response_model=ForecastOut)
-def get(forecast_id: uuid.UUID, db: Session = Depends(get_db)) -> ForecastOut:
-    run = db.get(ForecastRun, forecast_id)
-    if run is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Forecast not found")
-    return to_out(db, run)
+def get(forecast_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(current_user)) -> ForecastOut:
+    return to_out(db, owned_forecast(db, user, forecast_id))

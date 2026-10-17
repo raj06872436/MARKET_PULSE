@@ -44,8 +44,15 @@ export function SentimentShareChart({ points, height = 260 }: { points: SeriesPo
     neu: b.scored >= MIN_N ? b.neutral / b.scored : null,
     neg: b.scored >= MIN_N ? b.negative / b.scored : null,
   }));
+  const latest = data.findLast((b) => b.pos !== null);
+  const summary = latest
+    ? `Share of scored posts by sentiment, ${size === 1 ? "per day" : "per week"}. Latest ${size === 1 ? "day" : "week"} with enough posts ` +
+      `(${shortDate(latest.start)}${size === 1 ? "" : ` to ${shortDate(latest.end)}`}): ${Math.round(latest.pos! * 100)}% positive, ` +
+      `${Math.round(latest.neu! * 100)}% neutral, ${Math.round(latest.neg! * 100)}% negative, from ${latest.scored} posts.`
+    : "Not enough scored posts to show sentiment shares.";
   return (
-    <div style={{ height }} className="w-full">
+    <figure style={{ height }} className="w-full">
+      <figcaption className="sr-only">{summary}</figcaption>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap={size === 1 ? 2 : 6}>
           <CartesianGrid stroke={GRID} vertical={false} />
@@ -85,7 +92,7 @@ export function SentimentShareChart({ points, height = 260 }: { points: SeriesPo
           <Bar dataKey="pos" stackId="s" fill={SENTIMENT.positive} stroke="#fff" strokeWidth={1} isAnimationActive={false} name="positive" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </figure>
   );
 }
 

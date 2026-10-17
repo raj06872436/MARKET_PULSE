@@ -130,7 +130,7 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
                 <ul className="divide-y divide-slate-100 md:hidden">
                   {records.items.map((r) => (
                     <li key={r.id} className="py-3 text-sm">
-                      <p className="text-slate-900">{r.text ?? <span className="text-slate-400">text not stored</span>}</p>
+                      <p className="text-slate-900">{r.text ?? <span className="text-slate-500">text not stored</span>}</p>
                       <div className="mt-1.5 flex flex-wrap items-start gap-x-3 gap-y-1 text-xs text-slate-500">
                         <SentimentPill label={r.sentiment} confidence={r.confidence} flags={r.flags} />
                         <span className="tabular-nums">{r.published_at.slice(0, 10)}</span>
@@ -162,10 +162,10 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
                         <tr key={r.id} className="border-b border-slate-100 align-top">
                           <td className="py-2 pr-3 whitespace-nowrap text-slate-600 tabular-nums">
                             {r.published_at.slice(0, 10)}
-                            <div className="text-[11px] text-slate-400">{r.source}</div>
+                            <div className="text-[11px] text-slate-500">{r.source}</div>
                           </td>
                           <td className="py-2 pr-3">
-                            <div className="text-slate-900">{r.text ?? <span className="text-slate-400">text not stored</span>}</div>
+                            <div className="text-slate-900">{r.text ?? <span className="text-slate-500">text not stored</span>}</div>
                             <div className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-slate-500">
                               {r.terms.join(", ")}
                               {r.url && <a href={r.url} target="_blank" rel="noreferrer" className="text-indigo-700 underline">open source</a>}
@@ -176,7 +176,7 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
                             {r.aspects.length ? r.aspects.map((a) => `${aspectLabel(a.aspect)} (${a.sentiment})`).join(", ") : "–"}
                           </td>
                           <td className="py-2 text-right tabular-nums text-slate-700">
-                            {r.engagement === null ? <span className="text-xs text-slate-400">not given</span> : r.engagement.toLocaleString()}
+                            {r.engagement === null ? <span className="text-xs text-slate-500">not given</span> : r.engagement.toLocaleString()}
                           </td>
                         </tr>
                       ))}

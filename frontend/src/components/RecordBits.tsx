@@ -17,7 +17,7 @@ export const FLAG_LABELS: Record<string, string> = {
 export function SentimentPill({ label, confidence, flags = [] }: {
   label: string | null; confidence?: number | null; flags?: string[];
 }) {
-  if (!label) return <span className="text-xs text-slate-400">not scored</span>;
+  if (!label) return <span className="text-xs text-slate-500">not scored</span>;
   const uncertain = flags.length > 0;
   return (
     <span className="inline-flex flex-col">

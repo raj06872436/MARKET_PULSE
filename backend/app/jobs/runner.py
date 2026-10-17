@@ -52,10 +52,10 @@ def active_run(db: Session, source: str) -> IngestionRun | None:
     )
 
 
-def last_successful_run(db: Session, source: str) -> IngestionRun | None:
+def last_successful_run(db: Session, source: str, *where) -> IngestionRun | None:
     return db.scalar(
         select(IngestionRun)
-        .where(IngestionRun.source == source, IngestionRun.status.in_(SUCCESS_STATUSES))
+        .where(IngestionRun.source == source, IngestionRun.status.in_(SUCCESS_STATUSES), *where)
         .order_by(IngestionRun.started_at.desc())
     )
 

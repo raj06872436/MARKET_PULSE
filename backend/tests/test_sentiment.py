@@ -7,6 +7,7 @@ from app.ml.sentiment import evaluate
 from app.ml.sentiment.dataset import load_labelled
 from app.ml.sentiment.lexicon import LexiconSentiment
 from app.ml.sentiment.preprocess import preprocess
+from tests.conftest import upload_workspace
 
 lexicon = LexiconSentiment()
 
@@ -81,7 +82,7 @@ CSV = (
 
 
 def upload(client):
-    return client.post("/api/imports/csv", data={"dataset": "s"}, files={"file": ("s.csv", CSV.encode(), "text/csv")})
+    return client.post("/api/imports/csv", data={"dataset": "s", "workspace_id": upload_workspace(client)}, files={"file": ("s.csv", CSV.encode(), "text/csv")})
 
 
 def test_imported_records_are_scored_once_with_model_version(client, db_session):

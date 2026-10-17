@@ -29,6 +29,8 @@ class IngestionRun(UUIDPk, Base):
     __tablename__ = "ingestion_runs"
 
     source: Mapped[str] = mapped_column(String(64), index=True)
+    # Set for uploads, which belong to one workspace. Null for public sources shared by every workspace.
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
     trigger: Mapped[str] = mapped_column(String(16), default="manual", server_default="manual")
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -47,8 +49,12 @@ class IngestionRun(UUIDPk, Base):
 
 class SocialRecord(UUIDPk, Base):
     __tablename__ = "social_records"
-    __table_args__ = (UniqueConstraint("source", "source_record_id"),)
+    __table_args__ = (UniqueConstraint("scope", "source", "source_record_id"),)
 
+    # "public" for records from shared sources, otherwise the workspace ID that uploaded them. Uploaded
+    # records only ever match terms in that workspace, and two workspaces can upload the same file.
+    scope: Mapped[str] = mapped_column(String(36), default="public", server_default="public")
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
     source: Mapped[str] = mapped_column(String(64), index=True)
     source_record_id: Mapped[str] = mapped_column(String(256))
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)

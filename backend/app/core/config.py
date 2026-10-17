@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     insights_model: str = "claude-opus-5-5"
 
+    # Sign-in. Sessions last this many days from the last request. Set ALLOW_REGISTRATION=false once the
+    # accounts you need exist; the first account created becomes the admin.
+    session_days: int = 14
+    allow_registration: bool = True
+    # Secure cookies need HTTPS. They are on everywhere except ENVIRONMENT=local unless set explicitly.
+    cookie_secure: bool | None = None
+
     csv_max_bytes: int = 10 * 1024 * 1024
     csv_max_rows: int = 50_000
 
@@ -36,6 +43,11 @@ class Settings(BaseSettings):
     bluesky_app_password: str | None = None
     bluesky_max_queries: int = 25
     bluesky_max_pages: int = 5
+
+
+    @property
+    def secure_cookies(self) -> bool:
+        return self.cookie_secure if self.cookie_secure is not None else self.environment != "local"
 
 
 @lru_cache
