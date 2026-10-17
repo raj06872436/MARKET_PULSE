@@ -86,3 +86,17 @@ Frequent phrases are unreviewed n-grams and are labelled as such. Topic clusteri
 ## Forecasts
 
 `app/ml/forecasting/` holds the methods (`models.py`), the rolling-origin back-test (`backtest.py`) and the service that checks the data, picks the method with the lowest back-test WAPE, fits it on all history and stores a `forecast_runs` row with `forecast_points`. A run that fails a data check is stored with `status = insufficient_data` and its reasons, and has no points. `POST /api/forecasts` runs one on demand; `GET /api/forecasts/{id}` returns it with the last 56 days of history and, once forecast days are collected, the actual values beside the forecast.
+
+## Dashboard
+
+| Page | Endpoint(s) | Answers |
+|---|---|---|
+| Overview | `/api/trends`, `/api/metrics/series` | What changed in the last week? |
+| Explore | `/api/records`, `/api/metrics/series` | What evidence is behind a number? |
+| Sentiment | `/api/entities/{id}/sentiment`, `/api/metrics/series` | What are people responding to? |
+| Compare | `/api/compare`, `/api/metrics/series` | Where does our brand differ? |
+| Forecasts | `/api/forecasts` | How much should I trust this estimate? |
+
+Filters shared by every page live in the URL (`wl`, `range`, `from`, `to`, `src`), and the navigation carries them from page to page. Preset ranges end on the last collected day from `/api/watchlists/{id}/data-range`, not today, and a banner says so when that day is more than two days old. All dates are UTC days.
+
+Counting rules the pages share: a post that names two terms counts once for each term on Compare and once overall in Explore; topic sentiment is per clause; cells and periods with fewer than 5 scored posts are left blank rather than shown as a percentage of almost nothing.

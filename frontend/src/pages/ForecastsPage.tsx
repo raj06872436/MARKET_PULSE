@@ -7,6 +7,7 @@ import { pct, shortDate } from "../charts/format";
 import { seriesColor } from "../charts/palette";
 import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
+import { useFilters } from "../hooks/useFilters";
 import type { Forecast, Watchlist } from "../types/api";
 
 const CHECK_LABELS: Record<string, string> = {
@@ -17,14 +18,14 @@ const CHECK_LABELS: Record<string, string> = {
 };
 
 export function ForecastsPage({ watchlists }: { watchlists: Watchlist[] }) {
-  const [watchlistId, setWatchlistId] = useState<string | null>(null);
+  const filters = useFilters(watchlists);
   const [entityId, setEntityId] = useState<string | null>(null);
   const [forecasts, setForecasts] = useState<Forecast[] | null>(null);
   const [horizon, setHorizon] = useState(7);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const watchlist = watchlists.find((w) => w.id === watchlistId) ?? watchlists.find((w) => w.active) ?? watchlists[0];
+  const { watchlist } = filters;
   const colorFor = useMemo(() => {
     const order = new Map(watchlist?.entities.map((e, i) => [e.id, i]));
     return (id: string) => seriesColor(order.get(id) ?? 0);
@@ -62,7 +63,7 @@ export function ForecastsPage({ watchlists }: { watchlists: Watchlist[] }) {
         description="Estimated daily mentions for the coming days, with a range and how well the method did on past data."
         actions={
           watchlists.length > 1 && (
-            <select value={watchlist?.id} onChange={(e) => { setWatchlistId(e.target.value); setEntityId(null); }}
+            <select value={watchlist?.id} onChange={(e) => { filters.setWatchlist(e.target.value); setEntityId(null); }}
               aria-label="Watchlist" className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm">
               {watchlists.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
