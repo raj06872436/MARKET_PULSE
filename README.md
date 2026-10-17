@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 6 of the implementation plan are built:
+Weeks 2 to 7 of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -20,7 +20,9 @@ Weeks 2 to 6 of the implementation plan are built:
 - Daily metrics per entity that keep "not collected" days apart from zero-mention days
 - An explainable trend score with confidence, components and example posts ([how it works](docs/architecture.md#trend-score))
 - Daily mention forecasts with an 80% range, compared against three baselines in a rolling back-test, and a "not enough reliable data" state when the data doesn't support one ([model card](docs/model-card-forecast.md), [back-test](docs/evaluation/forecast.md))
-- React + TypeScript + Vite + Tailwind UI with Overview (daily mentions chart and trend cards), Forecasts, Watchlists and Sources pages
+- Dashboard pages: Overview, Explore (searchable post table), Sentiment (over time, by topic, phrases and examples), Compare (scorecards, share of voice, topic gaps) and Forecasts, plus Watchlists and Sources
+- Shared filters for watchlist, date range and sources, kept in the URL so they carry between pages and can be shared as links
+- Coverage labels on every chart and comparison, and warnings when a source failed or the data is stale
 - Docker Compose for local development and GitHub Actions CI
 
 Insights, alerts and authentication come in later weeks. See [docs/architecture.md](docs/architecture.md).

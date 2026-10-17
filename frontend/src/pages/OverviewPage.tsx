@@ -7,18 +7,19 @@ import { LineSeriesChart, toLineSeries } from "../charts/LineSeriesChart";
 import { seriesColor } from "../charts/palette";
 import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
+import { useFilters } from "../hooks/useFilters";
 import { TrendCardView } from "../components/TrendCardView";
 import type { SeriesResponse, Source, TrendCard, Watchlist } from "../types/api";
 
 const CHART_DAYS = 90;
 
 export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
-  const [watchlistId, setWatchlistId] = useState<string | null>(null);
+  const filters = useFilters(watchlists);
   const [sources, setSources] = useState<Source[]>([]);
   const [cards, setCards] = useState<TrendCard[] | null>(null);
   const [series, setSeries] = useState<SeriesResponse | null>(null);
 
-  const watchlist = watchlists.find((w) => w.id === watchlistId) ?? watchlists.find((w) => w.active) ?? watchlists[0];
+  const { watchlist } = filters;
   // Colour follows the entity's position in its watchlist, so it stays the same on every page.
   const colorFor = useMemo(() => {
     const order = new Map(watchlist?.entities.map((e, i) => [e.id, i]));
@@ -53,7 +54,7 @@ export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
         description="What changed in the last week for the brands and products you track."
         actions={
           watchlists.length > 1 && (
-            <select value={watchlist?.id} onChange={(e) => setWatchlistId(e.target.value)} aria-label="Watchlist"
+            <select value={watchlist?.id} onChange={(e) => filters.setWatchlist(e.target.value)} aria-label="Watchlist"
               className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm">
               {watchlists.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
