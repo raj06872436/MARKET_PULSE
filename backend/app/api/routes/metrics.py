@@ -7,8 +7,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.analytics.evidence import gather_evidence
+from app.api.deps import current_user, owned_entities, owned_entity, owned_watchlist
 from app.core.config import Settings, get_settings
-from app.db.models import DailyMetric, TrackedEntity, TrendSignal, Watchlist
+from app.db.models import DailyMetric, TrendSignal, User
 from app.db.session import get_db
 from app.ml.sentiment.registry import get_model
 from app.schemas.metrics import EntitySeries, Evidence, SeriesPoint, SeriesResponse, TrendCard
@@ -69,10 +70,11 @@ def metrics_series(
     end: date = Query(...),
     source: list[str] | None = Query(default=None),
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ) -> SeriesResponse:
     _check_range(start, end)
     ids = _parse_ids(entity_ids)
-    entities = {e.id: e for e in db.scalars(select(TrackedEntity).where(TrackedEntity.id.in_(ids)))}
+    entities = owned_entities(db, user, ids)
     if missing := [str(i) for i in ids if i not in entities]:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Unknown entity: {', '.join(missing)}")
     query = select(DailyMetric).where(DailyMetric.tracked_entity_id.in_(ids), DailyMetric.date >= start, DailyMetric.date <= end)
@@ -102,21 +104,19 @@ def entity_evidence(
     end: date = Query(...),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> Evidence:
     _check_range(start, end)
-    entity = db.get(TrackedEntity, entity_id)
-    if entity is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Entity not found")
+    entity = owned_entity(db, user, entity_id)
     return gather_evidence(db, entity, start, end, get_model(settings.sentiment_model))
 
 
 @router.get("/trends", response_model=list[TrendCard])
 def trends(
-    watchlist_id: uuid.UUID, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+    watchlist_id: uuid.UUID, db: Session = Depends(get_db), settings: Settings = Depends(get_settings),
+    user: User = Depends(current_user),
 ) -> list[TrendCard]:
-    watchlist = db.get(Watchlist, watchlist_id)
-    if watchlist is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Watchlist not found")
+    watchlist = owned_watchlist(db, user, watchlist_id)
     model = get_model(settings.sentiment_model)
     cards = []
     for entity in watchlist.entities:

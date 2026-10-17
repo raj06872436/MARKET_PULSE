@@ -24,6 +24,7 @@ from app.db.models import (
     SocialRecord,
     TrackedEntity,
     TrendSignal,
+    Watchlist,
 )
 from app.ingestion.matching import build_matchers, match_text
 from app.ml.sentiment.base import SentimentModel
@@ -57,8 +58,9 @@ def rematch_records(db: Session) -> int:
         return 0
     existing = {(r, e) for r, e in db.execute(select(RecordMatch.record_id, RecordMatch.tracked_entity_id))}
     added = 0
-    for record_id, text in db.execute(select(SocialRecord.id, SocialRecord.text_reference)).all():
-        for entity_id in match_text(text, matchers):
+    rows = db.execute(select(SocialRecord.id, SocialRecord.text_reference, SocialRecord.workspace_id)).all()
+    for record_id, text, workspace_id in rows:
+        for entity_id in match_text(text, matchers, workspace_id):
             if (record_id, entity_id) not in existing:
                 db.add(RecordMatch(record_id=record_id, tracked_entity_id=entity_id, match_method="term"))
                 added += 1
@@ -66,12 +68,16 @@ def rematch_records(db: Session) -> int:
     return added
 
 
-def coverage_days(db: Session) -> dict[str, dict[date, bool]]:
+Scope = tuple[str, uuid.UUID | None]  # (source, workspace the upload belongs to, or None if shared)
+
+
+def coverage_days(db: Session) -> dict[Scope, dict[date, bool]]:
     """Days each source was actually collected, mapped to whether collection was complete that day.
 
-    A day absent from the map is "missing", which is different from an observed zero.
+    A day absent from the map is "missing", which is different from an observed zero. Uploads count
+    as coverage only for the workspace they were uploaded to.
     """
-    coverage: dict[str, dict[date, bool]] = defaultdict(dict)
+    coverage: dict[Scope, dict[date, bool]] = defaultdict(dict)
     runs = db.scalars(select(IngestionRun).where(IngestionRun.status.in_(("succeeded", "partial")))).all()
     for run in runs:
         bounds = db.execute(
@@ -89,9 +95,10 @@ def coverage_days(db: Session) -> dict[str, dict[date, bool]]:
                 continue
             start, end = bounds
         complete = run.status == "succeeded"
+        key = (run.source, run.workspace_id)
         day = utc_date(start)
         while day <= utc_date(end):
-            coverage[run.source][day] = coverage[run.source].get(day, False) or complete
+            coverage[key][day] = coverage[key].get(day, False) or complete
             day += timedelta(days=1)
     return coverage
 
@@ -139,10 +146,11 @@ def rebuild_daily_metrics(db: Session, model: SentimentModel) -> int:
                 b["low_confidence"] += 1
 
     # Every covered day gets a row for every entity, so a quiet day is an observed zero, not a gap.
-    entity_ids = db.scalars(select(TrackedEntity.id)).all()
+    entity_workspace = dict(db.execute(select(TrackedEntity.id, Watchlist.workspace_id).join(Watchlist)).all())
     db.execute(delete(DailyMetric))
     count = 0
-    for source, days in coverage.items():
+    for (source, workspace_id), days in coverage.items():
+        entity_ids = [e for e, w in entity_workspace.items() if workspace_id is None or w == workspace_id]
         for day, complete in days.items():
             for entity_id in entity_ids:
                 b = buckets.pop((entity_id, source, day), None)

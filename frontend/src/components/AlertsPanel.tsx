@@ -84,7 +84,7 @@ export function AlertsPanel({ watchlist }: { watchlist: Watchlist }) {
         <ul className="mt-3 divide-y divide-slate-100 text-sm">
           {alerts.map((a) => (
             <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-              <span className={a.active ? "text-slate-800" : "text-slate-400"}>
+              <span className={a.active ? "text-slate-800" : "text-slate-500"}>
                 <span className="font-medium">{a.term}</span>: {describe(a)}
                 <span className="text-xs text-slate-500"> · at most once every {COOLDOWNS.find((c) => c.minutes === a.cooldown_minutes)?.label ?? `${a.cooldown_minutes} minutes`}</span>
               </span>

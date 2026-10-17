@@ -38,10 +38,11 @@ def ingest_records(
 ) -> IngestStats:
     """Store new records and their watchlist matches. Records already stored are counted, not re-added.
 
-    Dedupe key is (source, source_record_id), so re-running a sync or re-uploading a file never
-    inflates mention counts. Commits after each batch so a later source failure keeps earlier work.
+    Dedupe key is (scope, source, source_record_id), so re-running a sync or re-uploading a file never
+    inflates mention counts. Scope is "public" for shared sources and the workspace ID for uploads. Commits after each batch so a later source failure keeps earlier work.
     """
     stats = stats or IngestStats()
+    scope = str(run.workspace_id) if run.workspace_id else "public"
     iterator = iter(records)
     while batch := list(islice(iterator, BATCH_SIZE)):
         stats.fetched += len(batch)
@@ -60,7 +61,7 @@ def ingest_records(
                 (source, rid)
                 for rid in db.scalars(
                     select(SocialRecord.source_record_id).where(
-                        SocialRecord.source == source, SocialRecord.source_record_id.in_(ids)
+                        SocialRecord.scope == scope, SocialRecord.source == source, SocialRecord.source_record_id.in_(ids)
                     )
                 )
             )
@@ -70,6 +71,8 @@ def ingest_records(
             if key in existing:
                 continue
             row = SocialRecord(
+                scope=scope,
+                workspace_id=run.workspace_id,
                 source=record.source,
                 source_record_id=record.source_record_id,
                 published_at=record.published_at,
@@ -83,7 +86,7 @@ def ingest_records(
             )
             db.add(row)
             db.flush()
-            entity_ids = match_text(record.text, matchers)
+            entity_ids = match_text(record.text, matchers, run.workspace_id)
             for entity_id in entity_ids:
                 db.add(RecordMatch(record_id=row.id, tracked_entity_id=entity_id, match_method="term"))
             stats.inserted += 1
