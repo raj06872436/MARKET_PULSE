@@ -6,7 +6,7 @@ It covers consumer markets only. It does not predict stock or crypto prices.
 
 ## Status
 
-Weeks 2 to 9 of the implementation plan are built:
+All ten weeks of the implementation plan are built:
 
 - FastAPI backend with typed config, JSON logging and a health check
 - PostgreSQL schema for every table in the plan, managed by Alembic migrations
@@ -29,9 +29,17 @@ Weeks 2 to 9 of the implementation plan are built:
 - Accounts with sign-in, private workspaces, and server-side checks on every endpoint so one account never sees another's watchlists, uploads or results ([security notes](docs/security.md))
 - Rate limits on sign-in and expensive endpoints, safe error messages with a request ID, security headers and redacted logs
 - Accessibility: keyboard skip link, labelled controls, text summaries for every chart, and a clean automated WCAG 2 AA check on every page
+- A production Docker image that serves the app and API on one port, with a Render Blueprint, a single-server Compose file, and a smoke test that CI runs against the built image ([deployment guide](docs/deployment.md))
 - Docker Compose for local development and GitHub Actions CI
 
-Deployment comes in week 10. See [docs/architecture.md](docs/architecture.md).
+## Documentation
+
+- [User guide](docs/user-guide.md): what each page shows and how to read the numbers
+- [Demo script](docs/demo-script.md): a 10 to 15 minute walk-through on the demo data
+- [Deployment](docs/deployment.md): hosting, settings, backups and logs
+- [Evaluation summary and limitations](docs/evaluation/summary.md): how far to trust each part
+- [Architecture](docs/architecture.md), [security](docs/security.md), [insights](docs/insights.md), [CSV format](docs/csv-format.md)
+- Model cards: [sentiment](docs/model-card-sentiment.md), [forecast](docs/model-card-forecast.md)
 
 ## Getting data in
 
@@ -95,10 +103,19 @@ npm run dev
 ## Tests
 
 ```bash
-cd backend && pytest        # API, import, connector and sync tests on in-memory SQLite
+cd backend && pytest        # API, analytics, security and end-to-end journey tests on in-memory SQLite
 alembic check               # fails if the models and migrations disagree
 cd ../frontend && npm run build   # type-check and build
 ```
+
+## Deploy
+
+```bash
+docker build -t marketpulse .
+docker run -p 8000:8000 -e DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/marketpulse marketpulse
+```
+
+The image runs migrations on start and serves the app at http://localhost:8000. Add `-e COOKIE_SECURE=false` only to try it over plain http on your own machine. For Render, other platforms, a single server, backups and logs, see the [deployment guide](docs/deployment.md). Check any deployment with `python3 deploy/smoke.py <url> <email> <password>`.
 
 ## Changing the schema
 
@@ -127,7 +144,9 @@ backend/tests/
 frontend/src/{api,charts,components,pages,types}/
 data_samples/   synthetic or licensed examples only
 notebooks/      experiments, not production logic
+deploy/         container entrypoint and the deployment smoke test
 docs/
+Dockerfile      production image (frontend build served by the API)
 ```
 
 ## Data rules
