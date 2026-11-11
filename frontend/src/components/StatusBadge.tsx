@@ -11,5 +11,5 @@ const STYLES: Record<SourceStatus, { label: string; className: string }> = {
 
 export function StatusBadge({ status }: { status: SourceStatus }) {
   const style = STYLES[status];
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${style.className}`}>{style.label}</span>;
+  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ring-current/15 ${style.className}`}>{style.label}</span>;
 }

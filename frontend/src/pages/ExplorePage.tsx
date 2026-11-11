@@ -12,6 +12,7 @@ import { ASPECTS, CoverageLabel, SentimentPill, coverageOf } from "../components
 import { aspectLabel } from "../components/TrendCardView";
 import { useFilters, useTermColors } from "../hooks/useFilters";
 import type { RecordPage, RecordQuery, SeriesResponse, Watchlist } from "../types/api";
+import { Loading } from "../components/Loading";
 
 const PAGE_SIZE = 25;
 
@@ -89,7 +90,7 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
         </EmptyState>
       ) : (
         <>
-          <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+          <section className="mb-6 card p-4 sm:p-5">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-semibold">Daily mentions</h2>
               {coverage && <CoverageLabel {...coverage} />}
@@ -97,11 +98,11 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
             {series ? (
               <LineSeriesChart series={toLineSeries(series.series, colorFor)} value={(p) => p.mentions} height={240} />
             ) : (
-              <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+              <Loading />
             )}
           </section>
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4">
+          <section className="card p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-end gap-3">
               <form onSubmit={search} className="flex min-w-[14rem] flex-1 gap-2" role="search">
                 <label htmlFor="post-search" className="sr-only">Search posts</label>
@@ -117,9 +118,9 @@ export function ExplorePage({ watchlists }: { watchlists: Watchlist[] }) {
                 options={[["newest", "Newest"], ["oldest", "Oldest"], ["engagement", "Most engagement"]]} />
             </div>
 
-            {error && <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+            {error && <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
             {!records ? (
-              <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+              <Loading />
             ) : records.total === 0 ? (
               <p className="py-10 text-center text-sm text-slate-500">No posts match these filters.</p>
             ) : (

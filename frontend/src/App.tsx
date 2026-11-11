@@ -4,6 +4,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { api, ApiError, SIGNED_OUT_EVENT } from "./api/client";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Layout } from "./components/Layout";
+import { Loading } from "./components/Loading";
 import { SignInPage } from "./pages/SignInPage";
 import type { User, Watchlist, Workspace } from "./types/api";
 
@@ -87,12 +88,12 @@ export default function App() {
     );
   }
   if (user === null) return <SignInPage onSignedIn={setUser} />;
-  if (!user || !workspace) return <div className="p-8 text-sm text-slate-500" role="status">Loading…</div>;
+  if (!user || !workspace) return <Loading className="min-h-screen" />;
 
   return (
     <Layout workspaceName={workspace.name} user={user} onSignOut={signOut}>
       <ErrorBoundary resetKey={pathname}>
-        <Suspense fallback={<p className="py-10 text-center text-sm text-slate-500" role="status">Loading…</p>}>
+        <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<OverviewPage watchlists={watchlists} />} />
             <Route

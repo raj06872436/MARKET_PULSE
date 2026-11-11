@@ -6,10 +6,12 @@ import { addDays, shortDate } from "../charts/format";
 import { LineSeriesChart, toLineSeries } from "../charts/LineSeriesChart";
 import { seriesColor } from "../charts/palette";
 import { EmptyState } from "../components/EmptyState";
+import { Icon, type IconName } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
 import { useFilters } from "../hooks/useFilters";
 import { TrendCardView } from "../components/TrendCardView";
 import type { SeriesResponse, Source, TrendCard, Watchlist } from "../types/api";
+import { Loading } from "../components/Loading";
 
 const CHART_DAYS = 90;
 
@@ -62,14 +64,14 @@ export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
         }
       />
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat label="Tracked terms" value={watchlist?.entities.length ?? 0} />
-        <Stat label="Mentions in the last week" value={weekMentions ?? "–"} />
-        <Stat label="Connected sources" value={connected} />
-        <Stat label="Watchlists" value={watchlists.length} />
+        <Stat label="Tracked terms" value={watchlist?.entities.length ?? 0} icon="terms" tone="bg-indigo-50 text-indigo-600" />
+        <Stat label="Mentions in the last week" value={weekMentions ?? "–"} icon="mentions" tone="bg-sky-50 text-sky-600" />
+        <Stat label="Connected sources" value={connected} icon="sources" tone="bg-emerald-50 text-emerald-600" />
+        <Stat label="Watchlists" value={watchlists.length} icon="watchlists" tone="bg-amber-50 text-amber-600" />
       </div>
 
       {failing.length > 0 && (
-        <p className="mb-6 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="mb-6 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {failing.map((s) => s.label).join(", ")} failed on the last sync, so recent numbers may be missing.{" "}
           <Link to="/sources" className="font-medium underline">See sources</Link>
         </p>
@@ -82,8 +84,8 @@ export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
         </EmptyState>
       ) : (
         <>
-          <section className="mb-8 rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="font-semibold">Daily mentions</h2>
+          <section className="mb-8 card p-4 sm:p-5">
+            <h2 className="text-base font-semibold">Daily mentions</h2>
             {series ? (
               <>
                 <p className="mb-2 text-xs text-slate-500">
@@ -96,11 +98,14 @@ export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
                 <Link to="/sources" className="font-medium text-indigo-700 underline">Upload a CSV or connect a source</Link> to see mentions here.
               </EmptyState>
             ) : (
-              <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+              <Loading />
             )}
           </section>
 
-          <h2 className="mb-3 font-semibold">Trends</h2>
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <h2 className="text-lg font-semibold">Trends</h2>
+            <span className="text-xs text-slate-500">This week vs the week before</span>
+          </div>
           {cards && cards.length > 0 && (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {cards.map((c) => <TrendCardView key={c.entity_id} card={c} color={colorFor(c.entity_id)} />)}
@@ -112,11 +117,16 @@ export function OverviewPage({ watchlists }: { watchlists: Watchlist[] }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function Stat({ label, value, icon, tone }: { label: string; value: number | string; icon: IconName; tone: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</div>
+    <div className="card flex items-start justify-between gap-3 p-4 sm:p-5">
+      <div className="min-w-0">
+        <div className="text-xs font-medium text-slate-500 sm:text-sm">{label}</div>
+        <div className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">{typeof value === "number" ? value.toLocaleString() : value}</div>
+      </div>
+      <div className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:flex ${tone}`}>
+        <Icon name={icon} className="h-[18px] w-[18px]" />
+      </div>
     </div>
   );
 }

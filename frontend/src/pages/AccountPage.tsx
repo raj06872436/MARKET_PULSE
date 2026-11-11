@@ -21,14 +21,14 @@ export function AccountPage({ user, onSignedOut }: { user: User; onSignedOut: ()
   return (
     <>
       <PageHeader title="Account" />
-      <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4 text-sm">
+      <section className="mb-6 card p-4 sm:p-5 text-sm">
         <dl className="grid grid-cols-[8rem_1fr] gap-y-2">
           <dt className="text-slate-500">Email</dt><dd>{user.email}</dd>
           <dt className="text-slate-500">Role</dt>
           <dd>{user.role === "admin" ? "Admin: can connect shared sources and rebuild analysis" : "Member"}</dd>
         </dl>
       </section>
-      <section className="rounded-lg border border-red-200 bg-white p-4 text-sm">
+      <section className="rounded-xl border border-red-200 bg-white p-4 text-sm">
         <h2 className="font-semibold text-red-800">Delete account</h2>
         <p className="mt-1 text-slate-600">
           Deletes your account, your workspaces, their watchlists, alerts and insights, and every file you uploaded.
@@ -43,7 +43,7 @@ export function AccountPage({ user, onSignedOut }: { user: User; onSignedOut: ()
             Delete my account
           </button>
         </div>
-        {error && <p role="alert" className="mt-2 rounded-md bg-red-50 px-3 py-2 text-red-700">{error}</p>}
+        {error && <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-700">{error}</p>}
       </section>
     </>
   );

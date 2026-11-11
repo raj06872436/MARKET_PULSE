@@ -13,6 +13,7 @@ import { CoverageLabel } from "../components/RecordBits";
 import { aspectLabel } from "../components/TrendCardView";
 import { useFilters, useTermColors } from "../hooks/useFilters";
 import type { Comparison, SeriesResponse, Watchlist } from "../types/api";
+import { Loading } from "../components/Loading";
 
 const MIN_CELL = 5;
 const MAX_ASPECTS = 8;
@@ -53,12 +54,12 @@ export function ComparePage({ watchlists }: { watchlists: Watchlist[] }) {
           <Link to="/sources" className="font-medium text-indigo-700 underline">Add data</Link> to compare terms.
         </EmptyState>
       ) : error ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : !data ? (
-        <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+        <Loading />
       ) : (
         <>
-          <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+          <section className="mb-6 card p-4 sm:p-5">
             <h2 className="mb-1 font-semibold">Scorecards</h2>
             <p className="mb-3 text-xs text-slate-500">
               A post that names two terms counts for both. Net sentiment is positive minus negative, as a share of scored posts.
@@ -116,17 +117,17 @@ export function ComparePage({ watchlists }: { watchlists: Watchlist[] }) {
             </div>
           </section>
 
-          <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+          <section className="mb-6 card p-4 sm:p-5">
             <h2 className="mb-2 font-semibold">Daily mentions</h2>
             {series ? (
               <LineSeriesChart series={toLineSeries(series.series, colorFor)} value={(p) => p.mentions} />
             ) : (
-              <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+              <Loading />
             )}
           </section>
 
           <div className="grid gap-6 lg:grid-cols-5">
-            <section className="rounded-lg border border-slate-200 bg-white p-4 lg:col-span-3">
+            <section className="card p-4 sm:p-5 lg:col-span-3">
               <h2 className="mb-1 font-semibold">Share of negative posts by topic</h2>
               <p className="mb-3 text-xs text-slate-500">Darker means more of that term's posts on the topic were negative. Cells with fewer than {MIN_CELL} posts are left blank.</p>
               <div className="overflow-x-auto">
@@ -165,7 +166,7 @@ export function ComparePage({ watchlists }: { watchlists: Watchlist[] }) {
               </div>
             </section>
 
-            <section className="rounded-lg border border-slate-200 bg-white p-4 lg:col-span-2">
+            <section className="card p-4 sm:p-5 lg:col-span-2">
               <h2 className="mb-1 font-semibold">Where terms differ</h2>
               <p className="mb-3 text-xs text-slate-500">Topics where one term's share of negative posts is at least 15 points away from the others combined.</p>
               {data.aspect_gaps.length === 0 ? (
