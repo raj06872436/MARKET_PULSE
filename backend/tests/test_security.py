@@ -52,6 +52,9 @@ def test_register_login_logout(anon_client, db_session):
 
 
 def test_forged_or_expired_session_is_refused(client, db_session):
+    # Replace the real session cookie rather than adding a second one next to it: newer test
+    # clients keep both, and the server would then still see the valid one.
+    client.cookies.clear()
     client.cookies.set("mp_session", "made-up-token")
     assert client.get("/api/auth/me").status_code == 401
 
