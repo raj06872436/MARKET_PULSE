@@ -55,9 +55,9 @@ export function SentimentShareChart({ points, height = 260 }: { points: SeriesPo
       <figcaption className="sr-only">{summary}</figcaption>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap={size === 1 ? 2 : 6}>
-          <CartesianGrid stroke={GRID} vertical={false} />
+          <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="start" tickFormatter={shortDate} tick={{ fontSize: 12, fill: AXIS_TEXT }} minTickGap={24} />
-          <YAxis tick={{ fontSize: 12, fill: AXIS_TEXT }} width={44} domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]}
+          <YAxis tick={{ fontSize: 12, fill: AXIS_TEXT }} axisLine={false} tickLine={false} width={44} domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]}
             tickFormatter={(v) => `${Math.round(v * 100)}%`} />
           <Tooltip
             cursor={{ fill: "#f0efec" }}
@@ -65,7 +65,7 @@ export function SentimentShareChart({ points, height = 260 }: { points: SeriesPo
               const b = active && payload?.[0]?.payload as (typeof data)[number] | undefined;
               if (!b) return null;
               return (
-                <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm">
+                <div className="rounded-lg border border-slate-200/80 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
                   <div className="mb-1 font-medium text-slate-700">
                     {size === 1 ? shortDate(b.start) : `${shortDate(b.start)} to ${shortDate(b.end)}`} (UTC)
                   </div>
