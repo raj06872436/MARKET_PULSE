@@ -54,7 +54,7 @@ export function SourcesPage({ workspaceId, isAdmin }: { workspaceId: string; isA
         title="Sources"
         description="Where your data comes from, whether each source is healthy, and what the last sync actually covered."
       />
-      {error && <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <h2 className="mb-2 text-sm font-medium text-slate-600">Connected platforms</h2>
       <div className="mb-8 space-y-4">
@@ -86,7 +86,7 @@ export function SourcesPage({ workspaceId, isAdmin }: { workspaceId: string; isA
 function SourceSummary({ source }: { source: Source }) {
   const run = source.last_run;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="card p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{source.label}</span>
         <StatusBadge status={source.status} />
@@ -119,7 +119,7 @@ function ApiSourceCard({ source, act, isAdmin }: {
   return (
     <div className="space-y-3">
       <SourceSummary source={source} />
-      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+      <div className="card p-4 sm:p-5 text-sm">
         {source.notes.map((n) => (
           <p key={n} className="mb-1 text-slate-600">
             {n}
@@ -213,7 +213,7 @@ function CsvUpload({ workspaceId, onDone }: { workspaceId: string; onDone: () =>
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+    <div className="card p-4 sm:p-5 text-sm">
       <p className="mb-3 text-slate-600">
         Upload data you're allowed to use. Required columns: <code>source_record_id</code>, <code>published_at</code>,{" "}
         <code>text</code>. Optional: <code>url</code>, <code>language</code>, <code>likes</code>, <code>comments</code>,{" "}
@@ -248,7 +248,7 @@ function CsvUpload({ workspaceId, onDone }: { workspaceId: string; onDone: () =>
           {busy ? "Importing…" : "Import"}
         </button>
       </form>
-      {error && <p className="mt-3 rounded-md bg-red-50 px-3 py-2 text-red-700">{error}</p>}
+      {error && <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-700">{error}</p>}
       {result && (
         <div className="mt-3 rounded-md bg-slate-50 p-3">
           <RunCounts run={result.run} />
@@ -287,7 +287,7 @@ const RUN_STATUS: Record<IngestionRun["status"], string> = {
 
 function RunsTable({ runs }: { runs: IngestionRun[] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-x-auto card">
       <table className="w-full min-w-[40rem] text-left text-sm">
         <thead className="border-b border-slate-200 text-slate-500">
           <tr>

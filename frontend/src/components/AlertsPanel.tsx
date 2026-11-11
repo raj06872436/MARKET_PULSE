@@ -78,7 +78,7 @@ export function AlertsPanel({ watchlist }: { watchlist: Watchlist }) {
         Checked after every import or sync, on each term's latest collected day. Days nobody collected never count as zero.
         Alerts appear here only.
       </p>
-      {error && <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {alerts && alerts.length > 0 && (
         <ul className="mt-3 divide-y divide-slate-100 text-sm">

@@ -55,7 +55,7 @@ export function WatchlistsPage({ workspaceId, watchlists, onChange }: Props) {
           Create watchlist
         </button>
       </form>
-      {error && <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {watchlists.length === 0 ? (
         <EmptyState title="No watchlists yet">Create one above, then add the terms you want to track.</EmptyState>
       ) : (
@@ -91,7 +91,7 @@ function WatchlistCard({ watchlist, run }: { watchlist: Watchlist; run: (a: () =
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
+    <section className="card p-4 sm:p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold">{watchlist.name}</h2>

@@ -59,9 +59,9 @@ export function ForecastChart({ forecast, color, height = 300 }: { forecast: For
       <figcaption className="sr-only">{summary}</figcaption>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={rows} margin={{ top: 16, right: 16, bottom: 0, left: 0 }}>
-          <CartesianGrid stroke={GRID} vertical={false} />
-          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 12, fill: AXIS_TEXT }} minTickGap={32} />
-          <YAxis tick={{ fontSize: 12, fill: AXIS_TEXT }} width={44} allowDecimals={false} />
+          <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 12, fill: AXIS_TEXT }} axisLine={{ stroke: GRID }} tickLine={false} tickMargin={8} minTickGap={32} />
+          <YAxis tick={{ fontSize: 12, fill: AXIS_TEXT }} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
           {forecast.training_end && (
             <ReferenceLine x={forecast.training_end} stroke={AXIS_TEXT} strokeDasharray="2 3"
               label={{ value: "forecast starts", position: "insideTopRight", fontSize: 11, fill: AXIS_TEXT, dy: -14 }} />
@@ -77,7 +77,7 @@ export function ForecastChart({ forecast, color, height = 300 }: { forecast: For
               if (!row) return null;
               const isForecast = row.band !== null || (row.predicted !== null && row.observed === null);
               return (
-                <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm">
+                <div className="rounded-lg border border-slate-200/80 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
                   <div className="mb-1 font-medium text-slate-700">{shortDate(label)} (UTC)</div>
                   {isForecast ? (
                     <>

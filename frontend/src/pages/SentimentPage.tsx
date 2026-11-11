@@ -12,6 +12,7 @@ import { CoverageLabel, FLAG_LABELS, SentimentPill, coverageOf } from "../compon
 import { SentimentBar, aspectLabel } from "../components/TrendCardView";
 import { useFilters, useTermColors } from "../hooks/useFilters";
 import type { EvidenceRecord, SentimentBreakdown, SeriesResponse, Watchlist } from "../types/api";
+import { Loading } from "../components/Loading";
 
 export function SentimentPage({ watchlists }: { watchlists: Watchlist[] }) {
   const filters = useFilters(watchlists, "90");
@@ -56,19 +57,19 @@ export function SentimentPage({ watchlists }: { watchlists: Watchlist[] }) {
           <Link to="/sources" className="font-medium text-indigo-700 underline">Add data</Link> to see sentiment.
         </EmptyState>
       ) : error ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : !data ? (
-        <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+        <Loading />
       ) : (
         <>
           <div className="mb-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-slate-200 bg-white p-4 md:col-span-2">
+            <div className="card p-4 sm:p-5 md:col-span-2">
               <div className="mb-2 text-sm text-slate-500">
                 {data.scored.toLocaleString()} of {data.mentions.toLocaleString()} posts scored ({entity.term}, {shortDate(data.start)} to {shortDate(data.end)})
               </div>
               <SentimentBar counts={data.counts} />
             </div>
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <div className="card p-4 sm:p-5">
               <div className="text-sm text-slate-500">Less certain labels</div>
               {flagged.length === 0 ? (
                 <div className="mt-1 text-sm text-slate-700">None flagged</div>
@@ -85,7 +86,7 @@ export function SentimentPage({ watchlists }: { watchlists: Watchlist[] }) {
             </div>
           </div>
 
-          <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+          <section className="mb-6 card p-4 sm:p-5">
             <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-semibold">Sentiment over time</h2>
               <div className="flex flex-wrap items-center gap-3">
@@ -96,11 +97,11 @@ export function SentimentPage({ watchlists }: { watchlists: Watchlist[] }) {
             <p className="mb-2 text-xs text-slate-500">
               Share of scored posts in each {series && series.series[0].points.length <= 21 ? "day" : "7-day period, counted back from the last day"}. Periods with fewer than 5 scored posts are left empty.
             </p>
-            {series ? <SentimentShareChart points={series.series[0].points} /> : <p className="py-10 text-center text-sm text-slate-500">Loading…</p>}
+            {series ? <SentimentShareChart points={series.series[0].points} /> : <Loading />}
           </section>
 
           <div className="mb-6 grid gap-6 lg:grid-cols-2">
-            <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <section className="card p-4 sm:p-5">
               <h2 className="font-semibold">By topic</h2>
               <p className="mb-3 text-xs text-slate-500">
                 Each topic mention is scored on its own clause, so one post can be positive about the camera and negative about the battery.
@@ -128,7 +129,7 @@ export function SentimentPage({ watchlists }: { watchlists: Watchlist[] }) {
               )}
             </section>
 
-            <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <section className="card p-4 sm:p-5">
               <h2 className="font-semibold">Frequent phrases</h2>
               <p className="mb-3 text-xs text-slate-500">Repeated word sequences in positive and in negative posts. Unreviewed, so read them as leads.</p>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -173,7 +174,7 @@ function Phrases({ title, color, items }: { title: string; color: string; items:
 
 function Examples({ title, items, more }: { title: string; items: EvidenceRecord[]; more: string }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
+    <section className="card p-4 sm:p-5">
       <div className="mb-2 flex items-baseline justify-between">
         <h2 className="font-semibold">{title}</h2>
         <Link to={more} className="text-sm text-indigo-700 underline">See all in Explore</Link>

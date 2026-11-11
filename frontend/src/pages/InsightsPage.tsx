@@ -80,7 +80,7 @@ export function InsightsPage({ watchlists }: { watchlists: Watchlist[] }) {
         }
       />
 
-      {error && <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {!watchlist || watchlist.entities.length === 0 ? (
         <EmptyState title="Nothing tracked yet">
@@ -130,7 +130,7 @@ function InsightCardView({ card, term, color, watchlistId }: {
   const explore = new URLSearchParams({ wl: watchlistId, range: "custom", from: card.period_start, to: card.period_end });
   if (card.entity_id) explore.append("term", card.entity_id);
   return (
-    <article className="flex flex-col rounded-lg border border-slate-200 bg-white p-4">
+    <article className="flex flex-col card p-4 sm:p-5">
       <header className="mb-2 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
           {color && <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: color }} aria-hidden />}

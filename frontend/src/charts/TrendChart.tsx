@@ -17,7 +17,7 @@ export function TrendChart({ data, label }: { data: SeriesPoint[]; label: string
     );
   }
   return (
-    <div className="h-64 rounded-lg border border-slate-200 bg-white p-4">
+    <div className="h-64 card p-4 sm:p-5">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid stroke="#e2e8f0" vertical={false} />

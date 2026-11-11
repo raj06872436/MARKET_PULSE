@@ -19,7 +19,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode; resetKey: st
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <div role="alert" className="rounded-lg border border-red-200 bg-white p-6 text-sm">
+      <div role="alert" className="rounded-xl border border-red-200 bg-white p-6 text-sm">
         <p className="font-medium text-red-800">This page hit an error.</p>
         <p className="mt-1 text-slate-600">Your data is safe. Reload the page, or pick another page from the menu.</p>
         <button onClick={() => window.location.reload()}
