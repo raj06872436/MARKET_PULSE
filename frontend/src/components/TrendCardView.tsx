@@ -21,6 +21,13 @@ const COMPONENT_LABELS: Record<string, string> = {
   persistence: "Persistence",
 };
 
+function scoreTone(score: number): string {
+  // 50 means no change, so only scores above it get the accent.
+  if (score >= 60) return "bg-indigo-600 text-white";
+  if (score > 50) return "bg-indigo-50 text-indigo-700";
+  return "bg-slate-100 text-slate-700";
+}
+
 const CONFIDENCE_STYLE = {
   high: "bg-emerald-50 text-emerald-800",
   medium: "bg-amber-50 text-amber-800",
@@ -53,7 +60,7 @@ export function SentimentBar({ counts }: { counts: Evidence["sentiment"] }) {
   const parts = (["positive", "neutral", "negative"] as const).filter((k) => counts[k] > 0);
   return (
     <div>
-      <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full" role="img"
+      <div className="flex h-2 gap-0.5 overflow-hidden rounded-full" role="img"
         aria-label={`${counts.positive} positive, ${counts.neutral} neutral, ${counts.negative} negative`}>
         {parts.map((k) => (
           <div key={k} style={{ width: `${(counts[k] / total) * 100}%`, background: SENTIMENT[k] }} />
@@ -77,46 +84,47 @@ export function TrendCardView({ card, color }: { card: TrendCard; color: string 
   const ev = card.evidence;
   const growth = d?.components.mention_growth;
   return (
-    <article className="flex flex-col rounded-lg border border-slate-200 bg-white p-4">
+    <article className="relative flex flex-col overflow-hidden card p-4 transition-shadow hover:shadow-md sm:p-5">
+      <div className="absolute inset-x-0 top-0 h-1" style={{ background: color }} aria-hidden />
       <header className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: color }} />
-            <h3 className="font-semibold">{card.term}</h3>
+            <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />
+            <h3 className="text-base font-semibold">{card.term}</h3>
           </div>
-          <p className="mt-0.5 text-xs uppercase tracking-wide text-slate-500">{card.entity_type}</p>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-slate-400">{card.entity_type}</p>
         </div>
         {card.score !== null && (
-          <div className="text-right">
-            <div className="text-2xl font-semibold tabular-nums">{Math.round(card.score)}</div>
-            <div className="text-xs text-slate-500">trend score</div>
+          <div className={`shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-right ${scoreTone(card.score)}`}>
+            <div className="text-2xl font-semibold leading-none tabular-nums">{Math.round(card.score)}</div>
+            <div className="mt-1 text-[10px] font-medium uppercase tracking-wider opacity-75">trend score</div>
           </div>
         )}
       </header>
 
-      <p className="mt-2 text-sm font-medium">{EXPLANATIONS[card.explanation_code ?? "insufficient_data"]}</p>
+      <p className="mt-3 text-sm font-medium leading-snug text-slate-800">{EXPLANATIONS[card.explanation_code ?? "insufficient_data"]}</p>
       {d && (
-        <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span className={`rounded-full px-2 py-0.5 font-medium ${CONFIDENCE_STYLE[d.confidence]}`}>{d.confidence} confidence</span>
           Week to {shortDate(d.window.end)} vs the week before (UTC)
         </p>
       )}
 
-      <div className="mt-3">
+      <div className="mt-3 rounded-lg bg-slate-50/80 px-2 pt-2 pb-1.5">
         <Sparkline points={card.sparkline} color={color} label={card.term} />
-        <p className="text-xs text-slate-500">Daily mentions, last 28 days</p>
+        <p className="px-1 text-[11px] text-slate-500">Daily mentions, last 28 days</p>
       </div>
 
       {ev && (
         <div className="mt-3 space-y-3 border-t border-slate-100 pt-3 text-sm">
           <p>
-            <span className="font-medium">{ev.mentions}</span> mentions this week
+            <span className="font-semibold tabular-nums">{ev.mentions}</span> mentions this week
             {growth?.previous_mentions !== undefined && <span className="text-slate-500"> (previous week {String(growth.previous_mentions)})</span>}
           </p>
           <SentimentBar counts={ev.sentiment} />
           {ev.aspects.length > 0 && (
             <div>
-              <p className="mb-1 text-xs font-medium text-slate-500">Most discussed</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Most discussed</p>
               <ul className="space-y-0.5">
                 {ev.aspects.slice(0, 3).map((a) => (
                   <li key={a.aspect} className="flex justify-between gap-2">
@@ -131,7 +139,7 @@ export function TrendCardView({ card, color }: { card: TrendCard; color: string 
           )}
           {ev.phrases.length > 0 && (
             <div>
-              <p className="mb-1 text-xs font-medium text-slate-500">Frequent phrases (unreviewed)</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Frequent phrases (unreviewed)</p>
               <p className="text-slate-700">{ev.phrases.slice(0, 4).map(([p, c]) => `"${p}" (${c})`).join(", ")}</p>
             </div>
           )}

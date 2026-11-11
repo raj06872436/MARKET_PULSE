@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { useFilters } from "../hooks/useFilters";
 import type { Forecast, Watchlist } from "../types/api";
+import { Loading } from "../components/Loading";
 
 const CHECK_LABELS: Record<string, string> = {
   history: "Enough history",
@@ -93,10 +94,10 @@ export function ForecastsPage({ watchlists }: { watchlists: Watchlist[] }) {
             })}
           </div>
 
-          {error && <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+          {error && <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
           {forecasts === null ? (
-            <p className="py-10 text-center text-sm text-slate-500">Loading…</p>
+            <Loading />
           ) : !forecast ? (
             <EmptyState title={`No forecast for ${entity?.term} yet`}>
               Forecasts are made automatically after data is imported or synced. You can also run one now.
@@ -137,7 +138,7 @@ function RunControls({ horizon, setHorizon, running, onRun }: {
 
 function NotEnoughData({ forecast, children }: { forecast: Forecast; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-5">
+    <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
       <h2 className="font-semibold text-amber-900">
         {forecast.status === "failed" ? "The forecast failed" : `Not enough reliable data to forecast ${forecast.term}`}
       </h2>
@@ -191,7 +192,7 @@ function ForecastView({ forecast, color, children }: { forecast: Forecast; color
             : "Exponential smoothing did not beat the same-day-last-week baseline"} />
       </div>
 
-      <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
+      <section className="mb-6 card p-4 sm:p-5">
         <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-semibold">Daily mentions of {forecast.term}</h2>
           <ForecastLegend color={color} level={forecast.interval_level} />
@@ -204,7 +205,7 @@ function ForecastView({ forecast, color, children }: { forecast: Forecast; color
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <section className="card p-4 sm:p-5">
           <h2 className="font-semibold">Back-test</h2>
           <p className="mb-3 text-xs text-slate-500">
             Each method forecast {forecast.backtest?.horizon_days} days ahead from {forecast.backtest?.origins.length} past
@@ -256,7 +257,7 @@ function ForecastView({ forecast, color, children }: { forecast: Forecast; color
           )}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <section className="card p-4 sm:p-5">
           <h2 className="font-semibold">Data checks</h2>
           <Checks checks={forecast.checks} />
           <p className="mt-4 text-xs text-slate-500">
@@ -273,7 +274,7 @@ function ForecastView({ forecast, color, children }: { forecast: Forecast; color
 
 function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="card p-4 sm:p-5">
       <div className="text-sm text-slate-500">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
       {note && <div className="mt-1 text-xs text-slate-500">{note}</div>}
