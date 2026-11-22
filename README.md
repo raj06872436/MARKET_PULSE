@@ -1,3 +1,5 @@
+<p align="center"><a href="https://github.com/raj06872436"><img src=".github/cover.svg" width="100%" alt="MarketPulse" /></a></p>
+
 # MarketPulse AI
 
 Social listening and market intelligence for consumer brands. MarketPulse tracks brands, products and competitors across approved data sources, measures sentiment and topics, flags trends and forecasts short-term attention. Every insight links back to the evidence behind it.
